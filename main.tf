@@ -30,9 +30,9 @@ locals {
   ]
 }
 
-# resource "streamsec_azure_tenant" "this" {
-#   display_name     = var.aws_account_display_name
-# }
+resource "streamsec_azure_tenant" "this" {
+  display_name = var.display_name
+}
 
 resource "azuread_application_registration" "this" {
   display_name     = var.app_reg_display_name
@@ -94,14 +94,15 @@ resource "azuread_application_password" "this" {
   rotate_when_changed = {
     rotation = time_rotating.this.id
   }
-  depends_on = [azuread_app_role_assignment.this, azuread_service_principal_delegated_permission_grant.this]
+  depends_on = [azurerm_role_assignment.this]
 }
 
 
-# resource "streamsec_azure_tenant_ack" "this" {
-#   id = streamsec_azure_tenant.this.id
-#   client_id = azuread_application_registration.this.client_id
-#   client_secret = azuread_service_principal_password.this.value
-#   tenant_id = data.azurerm_client_config.current.tenant_id
-#   subscriptions = var.subscriptions
-# }
+resource "streamsec_azure_tenant_ack" "this" {
+  id            = streamsec_azure_tenant.this.id
+  client_id     = azuread_application_registration.this.client_id
+  client_secret = azuread_application_password.this.value
+  tenant_id     = data.azurerm_client_config.current.tenant_id
+  subscriptions = var.subscriptions
+  depends_on    = [azurerm_role_assignment.this]
+}
