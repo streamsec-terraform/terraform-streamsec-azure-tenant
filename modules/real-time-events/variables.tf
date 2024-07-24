@@ -1,4 +1,14 @@
 ################################################################################
+# Real Time Events Variables
+################################################################################
+
+variable "subscriptions" {
+  description = "The list of Azure subscription IDs enable Real Time Events for."
+  type        = list(string)
+
+}
+
+################################################################################
 # Real Time Events Resource Group Variables
 ################################################################################
 
@@ -18,6 +28,12 @@ variable "location" {
   description = "The location to create the Stream Security Azure resources in."
   type        = string
   default     = "East US"
+}
+
+variable "resource_group_tags" {
+  description = "The tags to apply to the resource group."
+  type        = map(string)
+  default     = {}
 }
 
 ################################################################################
@@ -97,6 +113,10 @@ variable "storage_account_name_prefix" {
   description = "The name of the Storage Account to prefix"
   type        = string
   default     = "streamsecurity"
+  validation {
+    condition     = can(regex("^[a-z0-9]*$", var.storage_account_name_prefix))
+    error_message = "Only lowercase letters and numbers are allowed."
+  }
 }
 
 variable "storage_account_tier" {
@@ -143,22 +163,20 @@ variable "function_name" {
   default     = "stream-security"
 }
 
-variable "function_bucket_name" {
-  description = "The name of the s3 bucket where the function code is stored."
-  type        = string
-  default     = "prod-lightlytics-azure-functions"
-}
-
-variable "function_zip_filename" {
-  description = "The name of the zip file containing the function code."
-  type        = string
-  default     = "LightlyticsEventhubtrigger.zip"
-}
-
 variable "function_tags" {
   description = "The tags to apply to the Function App."
   type        = map(string)
   default     = {}
+}
+
+################################################################################
+# Real Time Events Diagnostic Settings Variables
+################################################################################
+
+variable "diagnostic_setting_name" {
+  description = "The name of the Diagnostic Setting to create."
+  type        = string
+  default     = "stream-security"
 }
 
 ################################################################################

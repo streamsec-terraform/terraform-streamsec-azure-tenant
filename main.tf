@@ -32,6 +32,7 @@ locals {
 
 resource "streamsec_azure_tenant" "this" {
   display_name = var.display_name
+  tenant_id    = data.azurerm_client_config.current.tenant_id
 }
 
 resource "azuread_application_registration" "this" {
@@ -99,10 +100,9 @@ resource "azuread_application_password" "this" {
 
 
 resource "streamsec_azure_tenant_ack" "this" {
-  id            = streamsec_azure_tenant.this.id
+  tenant_id     = data.azurerm_client_config.current.tenant_id
   client_id     = azuread_application_registration.this.client_id
   client_secret = azuread_application_password.this.value
-  tenant_id     = data.azurerm_client_config.current.tenant_id
   subscriptions = var.subscriptions
   depends_on    = [azuread_application_password.this]
 }

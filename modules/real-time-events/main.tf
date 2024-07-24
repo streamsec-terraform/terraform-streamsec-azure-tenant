@@ -14,6 +14,8 @@ resource "azurerm_resource_group" "this" {
 
   name     = var.resource_group_name
   location = var.location
+
+  tags = merge(var.tags, var.resource_group_tags)
 }
 
 locals {
@@ -37,6 +39,13 @@ resource "azurerm_eventhub" "this" {
   resource_group_name = local.resource_group.name
   partition_count     = var.eventhub_partition_count
   message_retention   = var.eventhub_message_retention
+}
+resource "azurerm_eventhub_namespace_authorization_rule" "this" {
+  name                = var.eventhub_authorization_rule_name
+  namespace_name      = azurerm_eventhub_namespace.this.name
+  resource_group_name = local.resource_group.name
+  listen              = true
+  send                = true
 }
 
 resource "azurerm_eventhub_authorization_rule" "this" {
@@ -62,8 +71,16 @@ resource "azurerm_application_insights" "this" {
 # Function App
 ################################################################################
 
+resource "random_string" "this" {
+  length  = 8
+  special = false
+  lower   = true
+  numeric = true
+  upper   = false
+}
+
 resource "azurerm_storage_account" "this" {
-  name                     = var.storage_account_name_prefix
+  name                     = "${var.storage_account_name_prefix}${random_string.this.result}"
   location                 = local.resource_group.location
   resource_group_name      = local.resource_group.name
   account_tier             = var.storage_account_tier
@@ -81,31 +98,55 @@ resource "azurerm_service_plan" "this" {
   tags = merge(var.tags, var.service_plan_tags)
 }
 
-resource "azurerm_function_app" "this" {
+resource "azurerm_linux_function_app" "this" {
   name                       = var.function_name
   location                   = local.resource_group.location
   resource_group_name        = local.resource_group.name
-  app_service_plan_id        = azurerm_service_plan.this.id
+  service_plan_id            = azurerm_service_plan.this.id
   storage_account_name       = azurerm_storage_account.this.name
   storage_account_access_key = azurerm_storage_account.this.primary_access_key
-  os_type                    = "linux"
-  version                    = "~4"
   app_settings = {
-    API_TOKEN                      = data.streamsec_azure_tenant.this.account_token
-    API_URL                        = data.streamsec_host.this.host
-    AzureWebJobsDashboard          = "TODO"
-    AzureWebJobsStorage            = "TODO"
-    FUNCTIONS_EXTENSION_VERSION    = "~4"
-    FUNCTIONS_WORKER_RUNTIME       = "python"
-    WEBSITE_RUN_FROM_PACKAGE       = "https://${var.function_bucket_name}.s3.amazonaws.com/${var.function_zip_filename}"
-    EventHubConnectionString       = "TODO"
-    SCM_DO_BUILD_DURING_DEPLOYMENT = "true"
-    ENABLE_ORYX_BUILD              = "true"
+    API_TOKEN = data.streamsec_azure_tenant.this.account_token
+    API_URL   = data.streamsec_host.this.host
   }
 
   site_config {
-    linux_fx_version = "python|3.10"
+    application_stack {
+      python_version = "3.10"
+    }
   }
 
   tags = merge(var.tags, var.function_tags)
+}
+
+resource "azurerm_monitor_aad_diagnostic_setting" "example" {
+  name                           = var.diagnostic_setting_name
+  eventhub_name                  = azurerm_eventhub.this.name
+  eventhub_authorization_rule_id = azurerm_eventhub_namespace_authorization_rule.this.id
+  enabled_log {
+    category = "AuditLogs"
+    retention_policy {
+      enabled = false
+    }
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "this" {
+  for_each = {
+    for subscription_id in var.subscriptions :
+    subscription_id => "/subscriptions/${subscription_id}"
+  }
+
+  name                           = var.diagnostic_setting_name
+  target_resource_id             = each.value
+  eventhub_name                  = azurerm_eventhub.this.name
+  eventhub_authorization_rule_id = azurerm_eventhub_namespace_authorization_rule.this.id
+
+  enabled_log {
+    category = "Administrative"
+  }
+
+  enabled_log {
+    category = "Autoscale"
+  }
 }
