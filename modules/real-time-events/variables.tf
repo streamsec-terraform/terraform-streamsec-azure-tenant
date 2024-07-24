@@ -42,6 +42,38 @@ variable "eventhub_namespace_tags" {
 }
 
 ################################################################################
+# Real Time Events Event Hub Variables
+################################################################################
+
+variable "eventhub_name" {
+  description = "The name of the Event Hub to create."
+  type        = string
+  default     = "stream-security"
+}
+
+variable "eventhub_partition_count" {
+  description = "The number of partitions for the Event Hub."
+  type        = number
+  default     = 2
+}
+
+variable "eventhub_message_retention" {
+  description = "The number of days to retain messages in the Event Hub."
+  type        = number
+  default     = 1
+}
+
+################################################################################
+# Real Time Events Event Hub Authorization Rule Variables
+################################################################################
+
+variable "eventhub_authorization_rule_name" {
+  description = "The name of the Event Hub authorization rule to create."
+  type        = string
+  default     = "stream-security"
+}
+
+################################################################################
 # Real Time Events Application Insights Variables
 ################################################################################
 
@@ -57,8 +89,81 @@ variable "application_insights_tags" {
   default     = {}
 }
 
+################################################################################
+# Real Time Events Storage Account Variables
+################################################################################
 
+variable "storage_account_name_prefix" {
+  description = "The name of the Storage Account to prefix"
+  type        = string
+  default     = "streamsecurity"
+}
 
+variable "storage_account_tier" {
+  description = "The tier for the Storage Account."
+  type        = string
+  default     = "Standard"
+}
+
+variable "storage_account_replication_type" {
+  description = "The replication type for the Storage Account."
+  type        = string
+  default     = "LRS"
+}
+
+variable "storage_account_tags" {
+  description = "The tags to apply to the Storage Account."
+  type        = map(string)
+  default     = {}
+}
+
+################################################################################
+# Real Time Events Service Plan Variables
+################################################################################
+
+variable "service_plan_name" {
+  description = "The name of the Service Plan to create."
+  type        = string
+  default     = "stream-security"
+}
+
+variable "service_plan_tags" {
+  description = "The tags to apply to the Service Plan."
+  type        = map(string)
+  default     = {}
+}
+
+################################################################################
+# Real Time Events Function Variables
+################################################################################
+
+variable "function_name" {
+  description = "The name of the Function App to create."
+  type        = string
+  default     = "stream-security"
+}
+
+variable "function_bucket_name" {
+  description = "The name of the s3 bucket where the function code is stored."
+  type        = string
+  default     = "prod-lightlytics-azure-functions"
+}
+
+variable "function_zip_filename" {
+  description = "The name of the zip file containing the function code."
+  type        = string
+  default     = "LightlyticsEventhubtrigger.zip"
+}
+
+variable "function_tags" {
+  description = "The tags to apply to the Function App."
+  type        = map(string)
+  default     = {}
+}
+
+################################################################################
+# Real Time Events General Variables
+################################################################################
 
 variable "tags" {
   description = "The tags to apply to the Stream Security Azure resources."

@@ -104,5 +104,5 @@ resource "streamsec_azure_tenant_ack" "this" {
   client_secret = azuread_application_password.this.value
   tenant_id     = data.azurerm_client_config.current.tenant_id
   subscriptions = var.subscriptions
-  depends_on    = [azurerm_role_assignment.this]
+  depends_on    = [azuread_application_password.this]
 }
