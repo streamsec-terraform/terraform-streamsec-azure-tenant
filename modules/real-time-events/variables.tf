@@ -70,7 +70,7 @@ variable "eventhub_name" {
 variable "eventhub_partition_count" {
   description = "The number of partitions for the Event Hub."
   type        = number
-  default     = 2
+  default     = 4
 }
 
 variable "eventhub_message_retention" {
@@ -161,6 +161,18 @@ variable "function_name" {
   description = "The name of the Function App to create."
   type        = string
   default     = "stream-security"
+}
+
+variable "function_bucket_name" {
+  description = "The name of the bucket to store the Function App code."
+  type        = string
+  default     = "prod-lightlytics-azure-functions"
+}
+
+variable "function_zip_filename" {
+  description = "The name of the zip file to store the Function App code."
+  type        = string
+  default     = "LightlyticsEventhubtrigger.zip"
 }
 
 variable "function_tags" {

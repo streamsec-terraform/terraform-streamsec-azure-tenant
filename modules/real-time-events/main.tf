@@ -106,8 +106,12 @@ resource "azurerm_linux_function_app" "this" {
   storage_account_name       = azurerm_storage_account.this.name
   storage_account_access_key = azurerm_storage_account.this.primary_access_key
   app_settings = {
-    API_TOKEN = data.streamsec_azure_tenant.this.account_token
-    API_URL   = data.streamsec_host.this.host
+    API_TOKEN                      = data.streamsec_azure_tenant.this.account_token
+    API_URL                        = data.streamsec_host.this.host
+    EventHubConnectionString       = "Endpoint=sb://${azurerm_eventhub_namespace.this.name}.servicebus.windows.net/;SharedAccessKeyName=${azurerm_eventhub_namespace_authorization_rule.this.name};SharedAccessKey=${azurerm_eventhub_namespace_authorization_rule.this.primary_key}"
+    WEBSITE_RUN_FROM_PACKAGE       = "https://${var.function_bucket_name}.s3.amazonaws.com/${var.function_zip_filename}"
+    SCM_DO_BUILD_DURING_DEPLOYMENT = "true"
+    ENABLE_ORYX_BUILD              = "true"
   }
 
   site_config {
