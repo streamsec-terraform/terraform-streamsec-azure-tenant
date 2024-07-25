@@ -21,7 +21,7 @@ variable "create_resource_group" {
 variable "resource_group_name" {
   description = "The name of the resource group to create the Stream Security Azure resources in."
   type        = string
-  default     = "rg-stream-security"
+  default     = "rg-streamsec-rte"
 }
 
 variable "location" {
@@ -42,7 +42,7 @@ variable "resource_group_tags" {
 variable "eventhub_namespace_name" {
   description = "The name of the Event Hub namespace to create."
   type        = string
-  default     = "eventhubns-stream-security"
+  default     = "eventhubns-streamsec-rte"
 }
 
 variable "eventhub_namespace_sku" {
@@ -54,7 +54,7 @@ variable "eventhub_namespace_sku" {
 variable "eventhub_namespace_authorization_rule_name" {
   description = "The name of the Event Hub Namespace authorization rule to create."
   type        = string
-  default     = "eventhubns-ar-stream-security"
+  default     = "eventhubns-ar-streamsec-rte"
 }
 
 variable "eventhub_namespace_tags" {
@@ -70,7 +70,7 @@ variable "eventhub_namespace_tags" {
 variable "eventhub_name" {
   description = "The name of the Event Hub to create."
   type        = string
-  default     = "eventhub-stream-security"
+  default     = "eventhub-streamsec-rte"
 }
 
 variable "eventhub_partition_count" {
@@ -88,7 +88,7 @@ variable "eventhub_message_retention" {
 variable "eventhub_authorization_rule_name" {
   description = "The name of the Event Hub authorization rule to create."
   type        = string
-  default     = "eventhub-ar-stream-security"
+  default     = "eventhub-ar-streamsec-rte"
 }
 
 ################################################################################
@@ -98,7 +98,7 @@ variable "eventhub_authorization_rule_name" {
 variable "application_insights_name" {
   description = "The name of the Application Insights instance to create."
   type        = string
-  default     = "appi-stream-security"
+  default     = "appi-streamsec-rte"
 }
 
 variable "application_insights_tags" {
@@ -114,7 +114,7 @@ variable "application_insights_tags" {
 variable "storage_account_name_prefix" {
   description = "The name of the Storage Account to prefix"
   type        = string
-  default     = "storstreamsecurity"
+  default     = "storstreamsecrte"
   validation {
     condition     = can(regex("^[a-z0-9]*$", var.storage_account_name_prefix))
     error_message = "Only lowercase letters and numbers are allowed."
@@ -146,7 +146,7 @@ variable "storage_account_tags" {
 variable "service_plan_name" {
   description = "The name of the Service Plan to create."
   type        = string
-  default     = "asp-stream-security"
+  default     = "asp-streamsec-rte"
 }
 
 variable "service_plan_tags" {
@@ -162,7 +162,7 @@ variable "service_plan_tags" {
 variable "function_name" {
   description = "The name of the Function App to create."
   type        = string
-  default     = "funcapp-stream-security"
+  default     = "funcapp-streamsec-rte"
 }
 
 variable "function_bucket_name" {
@@ -190,7 +190,7 @@ variable "function_tags" {
 variable "diagnostic_setting_name" {
   description = "The name of the Diagnostic Setting to create."
   type        = string
-  default     = "ds-stream-security"
+  default     = "ds-streamsec-rte"
 }
 
 ################################################################################

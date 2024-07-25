@@ -80,12 +80,13 @@ resource "random_string" "this" {
 }
 
 resource "azurerm_storage_account" "this" {
-  name                     = "${var.storage_account_name_prefix}${random_string.this.result}"
-  location                 = local.resource_group.location
-  resource_group_name      = local.resource_group.name
-  account_tier             = var.storage_account_tier
-  account_replication_type = var.storage_account_replication_type
-  tags                     = merge(var.tags, var.storage_account_tags)
+  name                      = "${var.storage_account_name_prefix}${random_string.this.result}"
+  location                  = local.resource_group.location
+  resource_group_name       = local.resource_group.name
+  account_tier              = var.storage_account_tier
+  account_replication_type  = var.storage_account_replication_type
+  enable_https_traffic_only = true
+  tags                      = merge(var.tags, var.storage_account_tags)
 }
 
 resource "azurerm_service_plan" "this" {
@@ -106,12 +107,10 @@ resource "azurerm_linux_function_app" "this" {
   storage_account_name       = azurerm_storage_account.this.name
   storage_account_access_key = azurerm_storage_account.this.primary_access_key
   app_settings = {
-    API_TOKEN                      = data.streamsec_azure_tenant.this.account_token
-    API_URL                        = data.streamsec_host.this.host
-    EventHubConnectionString       = "Endpoint=sb://${azurerm_eventhub_namespace.this.name}.servicebus.windows.net/;SharedAccessKeyName=${azurerm_eventhub_namespace_authorization_rule.this.name};SharedAccessKey=${azurerm_eventhub_namespace_authorization_rule.this.primary_key};EntityPath=${azurerm_eventhub.this.name}"
-    WEBSITE_RUN_FROM_PACKAGE       = "https://${var.function_bucket_name}.s3.amazonaws.com/${var.function_zip_filename}"
-    SCM_DO_BUILD_DURING_DEPLOYMENT = "true"
-    ENABLE_ORYX_BUILD              = "true"
+    API_TOKEN                = data.streamsec_azure_tenant.this.account_token
+    API_URL                  = data.streamsec_host.this.host
+    EventHubConnectionString = "Endpoint=sb://${azurerm_eventhub_namespace.this.name}.servicebus.windows.net/;SharedAccessKeyName=${azurerm_eventhub_namespace_authorization_rule.this.name};SharedAccessKey=${azurerm_eventhub_namespace_authorization_rule.this.primary_key};EntityPath=${azurerm_eventhub.this.name}"
+    WEBSITE_RUN_FROM_PACKAGE = "https://${var.function_bucket_name}.s3.amazonaws.com/${var.function_zip_filename}"
   }
 
   site_config {
