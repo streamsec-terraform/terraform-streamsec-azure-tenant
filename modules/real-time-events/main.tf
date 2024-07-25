@@ -72,7 +72,7 @@ resource "azurerm_application_insights" "this" {
 ################################################################################
 
 resource "random_string" "this" {
-  length  = 8
+  length  = 6
   special = false
   lower   = true
   numeric = true

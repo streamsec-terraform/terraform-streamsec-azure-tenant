@@ -70,7 +70,7 @@ variable "eventhub_namespace_tags" {
 variable "eventhub_name" {
   description = "The name of the Event Hub to create."
   type        = string
-  default     = "eventhub-ar-stream-security"
+  default     = "eventhub-stream-security"
 }
 
 variable "eventhub_partition_count" {
@@ -88,7 +88,7 @@ variable "eventhub_message_retention" {
 variable "eventhub_authorization_rule_name" {
   description = "The name of the Event Hub authorization rule to create."
   type        = string
-  default     = "eventhubstream-security"
+  default     = "eventhub-ar-stream-security"
 }
 
 ################################################################################
