@@ -41,7 +41,7 @@ resource "azurerm_eventhub" "this" {
   message_retention   = var.eventhub_message_retention
 }
 resource "azurerm_eventhub_namespace_authorization_rule" "this" {
-  name                = var.eventhub_authorization_rule_name
+  name                = var.eventhub_namespace_authorization_rule_name
   namespace_name      = azurerm_eventhub_namespace.this.name
   resource_group_name = local.resource_group.name
   listen              = true
