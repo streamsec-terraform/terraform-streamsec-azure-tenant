@@ -109,7 +109,6 @@ resource "azurerm_linux_function_app" "this" {
     API_TOKEN                      = data.streamsec_azure_tenant.this.account_token
     API_URL                        = data.streamsec_host.this.host
     EventHubConnectionString       = "Endpoint=sb://${azurerm_eventhub_namespace.this.name}.servicebus.windows.net/;SharedAccessKeyName=${azurerm_eventhub_namespace_authorization_rule.this.name};SharedAccessKey=${azurerm_eventhub_namespace_authorization_rule.this.primary_key};EntityPath=${azurerm_eventhub.this.name}"
-    APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.this.instrumentation_key
     WEBSITE_RUN_FROM_PACKAGE       = "https://${var.function_bucket_name}.s3.amazonaws.com/${var.function_zip_filename}"
     SCM_DO_BUILD_DURING_DEPLOYMENT = "true"
     ENABLE_ORYX_BUILD              = "true"
@@ -119,9 +118,18 @@ resource "azurerm_linux_function_app" "this" {
     application_stack {
       python_version = "3.10"
     }
+    application_insights_key = azurerm_application_insights.this.instrumentation_key
   }
 
   tags = merge(var.tags, var.function_tags)
+
+  lifecycle {
+    ignore_changes = [
+      tags["hidden-link: /app-insights-instrumentation-key"],
+      tags["hidden-link: /app-insights-resource-id"],
+      tags["hidden-link: /app-insights-conn-string"]
+    ]
+  }
 }
 
 ################################################################################
