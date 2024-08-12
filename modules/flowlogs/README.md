@@ -26,6 +26,7 @@ No modules.
 | [azurerm_linux_function_app.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_function_app) | resource |
 | [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) | resource |
 | [azurerm_service_plan.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/service_plan) | resource |
+| [azurerm_application_insights.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/application_insights) | data source |
 | [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) | data source |
 | [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/resource_group) | data source |
 | [azurerm_storage_account.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/storage_account) | data source |
@@ -38,7 +39,10 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_application_insights_name"></a> [application\_insights\_name](#input\_application\_insights\_name) | The name of the Application Insights instance to create. | `string` | `"appi-stream-flowlogs"` | no |
 | <a name="input_application_insights_tags"></a> [application\_insights\_tags](#input\_application\_insights\_tags) | The tags to apply to the Application Insights instance. | `map(string)` | `{}` | no |
+| <a name="input_create_application_insights"></a> [create\_application\_insights](#input\_create\_application\_insights) | Whether to create a new Application Insights instance for the Stream Security Azure resources. | `bool` | `true` | no |
 | <a name="input_create_resource_group"></a> [create\_resource\_group](#input\_create\_resource\_group) | Whether to create a new resource group for the Stream Security Azure resources. if false, the resources will be created in the resource group specified by the `resource_group_name` variable. | `bool` | `true` | no |
+| <a name="input_existing_application_insights_name"></a> [existing\_application\_insights\_name](#input\_existing\_application\_insights\_name) | The name of the existing Application Insights instance to use in case `create_application_insights` is set to false. | `string` | `null` | no |
+| <a name="input_existing_application_insights_resource_group_name"></a> [existing\_application\_insights\_resource\_group\_name](#input\_existing\_application\_insights\_resource\_group\_name) | The name of the resource group to create/import the Application Insights instance | `string` | `null` | no |
 | <a name="input_function_name"></a> [function\_name](#input\_function\_name) | The name of the Function App to create. | `string` | `"funcapp-stream-flowlogs"` | no |
 | <a name="input_function_tags"></a> [function\_tags](#input\_function\_tags) | The tags to apply to the Function App. | `map(string)` | `{}` | no |
 | <a name="input_location"></a> [location](#input\_location) | The location to create the Stream Security Azure resources in. | `string` | `"East US"` | no |

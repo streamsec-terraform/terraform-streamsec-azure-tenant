@@ -36,8 +36,10 @@ No modules.
 | [azurerm_service_plan.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/service_plan) | resource |
 | [azurerm_storage_account.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account) | resource |
 | [random_string.this](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
+| [azurerm_application_insights.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/application_insights) | data source |
 | [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) | data source |
 | [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/resource_group) | data source |
+| [azurerm_storage_account.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/storage_account) | data source |
 | [streamsec_azure_tenant.this](https://registry.terraform.io/providers/streamsec-terraform/streamsec/latest/docs/data-sources/azure_tenant) | data source |
 | [streamsec_host.this](https://registry.terraform.io/providers/streamsec-terraform/streamsec/latest/docs/data-sources/host) | data source |
 
@@ -47,7 +49,9 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_application_insights_name"></a> [application\_insights\_name](#input\_application\_insights\_name) | The name of the Application Insights instance to create. | `string` | `"appi-streamsec-rte"` | no |
 | <a name="input_application_insights_tags"></a> [application\_insights\_tags](#input\_application\_insights\_tags) | The tags to apply to the Application Insights instance. | `map(string)` | `{}` | no |
+| <a name="input_create_application_insights"></a> [create\_application\_insights](#input\_create\_application\_insights) | Whether to create a new Application Insights instance for the Stream Security Azure resources. | `bool` | `true` | no |
 | <a name="input_create_resource_group"></a> [create\_resource\_group](#input\_create\_resource\_group) | Whether to create a new resource group for the Stream Security Azure resources. if false, the resources will be created in the resource group specified by the `resource_group_name` variable. | `bool` | `true` | no |
+| <a name="input_create_storage_account"></a> [create\_storage\_account](#input\_create\_storage\_account) | Whether to create a new Storage Account for the Stream Security Azure resources. if false, the resources will be created in the Storage Account specified by the `existing_storage_account_name` variable. | `bool` | `true` | no |
 | <a name="input_diagnostic_setting_name"></a> [diagnostic\_setting\_name](#input\_diagnostic\_setting\_name) | The name of the Diagnostic Setting to create. | `string` | `"ds-streamsec-rte"` | no |
 | <a name="input_eventhub_authorization_rule_name"></a> [eventhub\_authorization\_rule\_name](#input\_eventhub\_authorization\_rule\_name) | The name of the Event Hub authorization rule to create. | `string` | `"eventhub-ar-streamsec-rte"` | no |
 | <a name="input_eventhub_message_retention"></a> [eventhub\_message\_retention](#input\_eventhub\_message\_retention) | The number of days to retain messages in the Event Hub. | `number` | `1` | no |
@@ -57,6 +61,10 @@ No modules.
 | <a name="input_eventhub_namespace_sku"></a> [eventhub\_namespace\_sku](#input\_eventhub\_namespace\_sku) | The SKU for the Event Hub namespace. | `string` | `"Standard"` | no |
 | <a name="input_eventhub_namespace_tags"></a> [eventhub\_namespace\_tags](#input\_eventhub\_namespace\_tags) | The tags to apply to the Event Hub namespace. | `map(string)` | `{}` | no |
 | <a name="input_eventhub_partition_count"></a> [eventhub\_partition\_count](#input\_eventhub\_partition\_count) | The number of partitions for the Event Hub. | `number` | `4` | no |
+| <a name="input_existing_application_insights_name"></a> [existing\_application\_insights\_name](#input\_existing\_application\_insights\_name) | The name of the existing Application Insights instance to use in case `create_application_insights` is set to false. | `string` | `null` | no |
+| <a name="input_existing_application_insights_resource_group_name"></a> [existing\_application\_insights\_resource\_group\_name](#input\_existing\_application\_insights\_resource\_group\_name) | The name of the resource group to create/import the Application Insights instance | `string` | `null` | no |
+| <a name="input_existing_storage_account_name"></a> [existing\_storage\_account\_name](#input\_existing\_storage\_account\_name) | The name of the Storage Account to use in case `create_storage_account` is set to false. | `string` | `null` | no |
+| <a name="input_existing_storage_account_resource_group_name"></a> [existing\_storage\_account\_resource\_group\_name](#input\_existing\_storage\_account\_resource\_group\_name) | The name of the resource group the existing Storage Account is in in case `create_storage_account` is set to false. | `string` | `null` | no |
 | <a name="input_function_bucket_name"></a> [function\_bucket\_name](#input\_function\_bucket\_name) | The name of the bucket to store the Function App code. | `string` | `"prod-lightlytics-azure-functions"` | no |
 | <a name="input_function_name"></a> [function\_name](#input\_function\_name) | The name of the Function App to create. | `string` | `"funcapp-streamsec-rte"` | no |
 | <a name="input_function_tags"></a> [function\_tags](#input\_function\_tags) | The tags to apply to the Function App. | `map(string)` | `{}` | no |

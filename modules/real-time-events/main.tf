@@ -59,12 +59,25 @@ resource "azurerm_eventhub_authorization_rule" "this" {
 ################################################################################
 # Application Insights
 ################################################################################
+
+data "azurerm_application_insights" "this" {
+  count               = var.create_application_insights ? 0 : 1
+  name                = var.existing_application_insights_name
+  resource_group_name = var.existing_application_insights_resource_group_name
+}
+
 resource "azurerm_application_insights" "this" {
+  count               = var.create_application_insights ? 1 : 0
   name                = var.application_insights_name
   location            = local.resource_group.location
   resource_group_name = local.resource_group.name
   application_type    = "web"
   tags                = merge(var.tags, var.application_insights_tags)
+}
+
+moved {
+  from = azurerm_application_insights.this
+  to   = azurerm_application_insights.this[0]
 }
 
 ################################################################################
@@ -79,14 +92,25 @@ resource "random_string" "this" {
   upper   = false
 }
 
+data "azurerm_storage_account" "this" {
+  count               = var.create_storage_account ? 0 : 1
+  name                = var.existing_storage_account_name
+  resource_group_name = var.existing_storage_account_resource_group_name
+}
+
 resource "azurerm_storage_account" "this" {
-  name                      = "${var.storage_account_name_prefix}${random_string.this.result}"
-  location                  = local.resource_group.location
-  resource_group_name       = local.resource_group.name
-  account_tier              = var.storage_account_tier
-  account_replication_type  = var.storage_account_replication_type
-  enable_https_traffic_only = true
-  tags                      = merge(var.tags, var.storage_account_tags)
+  count                    = var.create_storage_account ? 1 : 0
+  name                     = "${var.storage_account_name_prefix}${random_string.this.result}"
+  location                 = local.resource_group.location
+  resource_group_name      = local.resource_group.name
+  account_tier             = var.storage_account_tier
+  account_replication_type = var.storage_account_replication_type
+  tags                     = merge(var.tags, var.storage_account_tags)
+}
+
+moved {
+  from = azurerm_storage_account.this
+  to   = azurerm_storage_account.this[0]
 }
 
 resource "azurerm_service_plan" "this" {
@@ -95,8 +119,7 @@ resource "azurerm_service_plan" "this" {
   resource_group_name = local.resource_group.name
   os_type             = "Linux"
   sku_name            = "Y1"
-
-  tags = merge(var.tags, var.service_plan_tags)
+  tags                = merge(var.tags, var.service_plan_tags)
 }
 
 resource "azurerm_linux_function_app" "this" {
@@ -104,8 +127,8 @@ resource "azurerm_linux_function_app" "this" {
   location                   = local.resource_group.location
   resource_group_name        = local.resource_group.name
   service_plan_id            = azurerm_service_plan.this.id
-  storage_account_name       = azurerm_storage_account.this.name
-  storage_account_access_key = azurerm_storage_account.this.primary_access_key
+  storage_account_name       = var.create_storage_account ? azurerm_storage_account.this[0].name : data.azurerm_storage_account.this[0].name
+  storage_account_access_key = var.create_storage_account ? azurerm_storage_account.this[0].primary_access_key : data.azurerm_storage_account.this[0].primary_access_key
   app_settings = {
     API_TOKEN                = data.streamsec_azure_tenant.this.account_token
     API_URL                  = data.streamsec_host.this.host
@@ -117,7 +140,7 @@ resource "azurerm_linux_function_app" "this" {
     application_stack {
       python_version = "3.10"
     }
-    application_insights_key = azurerm_application_insights.this.instrumentation_key
+    application_insights_key = var.create_application_insights ? azurerm_application_insights.this[0].instrumentation_key : data.azurerm_application_insights.this[0].instrumentation_key
   }
 
   tags = merge(var.tags, var.function_tags)
