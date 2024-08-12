@@ -25,13 +25,26 @@ locals {
 ################################################################################
 # Application Insights
 ################################################################################
+data "azurerm_application_insights" "this" {
+  count               = var.create_application_insights ? 0 : 1
+  name                = var.existing_application_insights_name
+  resource_group_name = var.existing_application_insights_resource_group_name
+}
+
 resource "azurerm_application_insights" "this" {
+  count               = var.create_application_insights ? 1 : 0
   name                = var.application_insights_name
   location            = local.resource_group.location
   resource_group_name = local.resource_group.name
   application_type    = "web"
   tags                = merge(var.tags, var.application_insights_tags)
 }
+
+moved {
+  from = azurerm_application_insights.this
+  to   = azurerm_application_insights.this[0]
+}
+
 
 ################################################################################
 # Function App
@@ -70,7 +83,7 @@ resource "azurerm_linux_function_app" "this" {
     application_stack {
       node_version = "14"
     }
-    application_insights_key = azurerm_application_insights.this.instrumentation_key
+    application_insights_key = var.create_application_insights ? azurerm_application_insights.this[0].instrumentation_key : data.azurerm_application_insights.this[0].instrumentation_key
   }
 
   tags = merge(var.tags, var.function_tags)

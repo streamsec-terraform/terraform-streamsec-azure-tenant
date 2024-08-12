@@ -46,6 +46,24 @@ variable "application_insights_name" {
   default     = "appi-stream-flowlogs"
 }
 
+variable "create_application_insights" {
+  description = "Whether to create a new Application Insights instance for the Stream Security Azure resources."
+  type        = bool
+  default     = true
+}
+
+variable "existing_application_insights_name" {
+  description = "The name of the existing Application Insights instance to use in case `create_application_insights` is set to false."
+  type        = string
+  default     = null
+}
+
+variable "existing_application_insights_resource_group_name" {
+  description = "The name of the resource group to create/import the Application Insights instance"
+  type        = string
+  default     = null
+}
+
 variable "application_insights_tags" {
   description = "The tags to apply to the Application Insights instance."
   type        = map(string)
@@ -55,7 +73,6 @@ variable "application_insights_tags" {
 ################################################################################
 # Flow Logs Storage Account Variables
 ################################################################################
-
 variable "storage_account_name" {
   description = "The name of the Storage Account where the network traffic logs will be stored."
   type        = string

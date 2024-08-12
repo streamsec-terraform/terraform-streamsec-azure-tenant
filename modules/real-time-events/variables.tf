@@ -95,6 +95,24 @@ variable "eventhub_authorization_rule_name" {
 # Real Time Events Application Insights Variables
 ################################################################################
 
+variable "create_application_insights" {
+  description = "Whether to create a new Application Insights instance for the Stream Security Azure resources."
+  type        = bool
+  default     = true
+}
+
+variable "existing_application_insights_name" {
+  description = "The name of the existing Application Insights instance to use in case `create_application_insights` is set to false."
+  type        = string
+  default     = null
+}
+
+variable "existing_application_insights_resource_group_name" {
+  description = "The name of the resource group to create/import the Application Insights instance"
+  type        = string
+  default     = null
+}
+
 variable "application_insights_name" {
   description = "The name of the Application Insights instance to create."
   type        = string
@@ -110,6 +128,24 @@ variable "application_insights_tags" {
 ################################################################################
 # Real Time Events Storage Account Variables
 ################################################################################
+
+variable "create_storage_account" {
+  description = "Whether to create a new Storage Account for the Stream Security Azure resources. if false, the resources will be created in the Storage Account specified by the `existing_storage_account_name` variable."
+  type        = bool
+  default     = true
+}
+
+variable "existing_storage_account_name" {
+  description = "The name of the Storage Account to use in case `create_storage_account` is set to false."
+  type        = string
+  default     = null
+}
+
+variable "existing_storage_account_resource_group_name" {
+  description = "The name of the resource group the existing Storage Account is in in case `create_storage_account` is set to false."
+  type        = string
+  default     = null
+}
 
 variable "storage_account_name_prefix" {
   description = "The name of the Storage Account to prefix"
