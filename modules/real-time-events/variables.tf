@@ -157,10 +157,22 @@ variable "storage_account_name_prefix" {
   }
 }
 
+variable "storage_account_min_tls_version" {
+  description = "The minimum TLS version for the Storage Account."
+  type        = string
+  default     = "TLS1_2"
+}
+
 variable "storage_account_tier" {
   description = "The tier for the Storage Account."
   type        = string
   default     = "Standard"
+}
+
+variable "storage_account_blob_delete_retention_days" {
+  description = "The number of days to retain deleted blobs in the Storage Account."
+  type        = number
+  default     = 1
 }
 
 variable "storage_account_replication_type" {
@@ -211,6 +223,29 @@ variable "function_zip_filename" {
   description = "The name of the zip file to store the Function App code."
   type        = string
   default     = "LightlyticsEventhubtrigger.zip"
+}
+
+variable "function_ftps_state" {
+  description = "The FTPS state for the Function App."
+  type        = string
+  default     = "FtpsOnly"
+}
+
+variable "function_public_access_enabled" {
+  description = "Whether to enable public access to the Function App."
+  type        = bool
+  default     = false
+}
+variable "function_https_only" {
+  description = "Whether to only allow HTTPS access to the Function App."
+  type        = bool
+  default     = true
+}
+
+variable "function_certificate_mode" {
+  description = "The certificate mode for the Function App."
+  type        = string
+  default     = "Required"
 }
 
 variable "function_tags" {

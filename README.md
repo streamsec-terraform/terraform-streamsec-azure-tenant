@@ -8,7 +8,7 @@ Terraform module for azure tenant
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
 | <a name="requirement_azuread"></a> [azuread](#requirement\_azuread) | >= 2.53.1 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 2.0 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.0 |
 | <a name="requirement_streamsec"></a> [streamsec](#requirement\_streamsec) | >= 1.8 |
 | <a name="requirement_time"></a> [time](#requirement\_time) | >= 0.11 |
 
@@ -17,7 +17,7 @@ Terraform module for azure tenant
 | Name | Version |
 |------|---------|
 | <a name="provider_azuread"></a> [azuread](#provider\_azuread) | >= 2.53.1 |
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >= 2.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >= 4.0 |
 | <a name="provider_streamsec"></a> [streamsec](#provider\_streamsec) | >= 1.8 |
 | <a name="provider_time"></a> [time](#provider\_time) | >= 0.11 |
 

@@ -34,11 +34,10 @@ resource "azurerm_eventhub_namespace" "this" {
 }
 
 resource "azurerm_eventhub" "this" {
-  name                = var.eventhub_name
-  namespace_name      = azurerm_eventhub_namespace.this.name
-  resource_group_name = local.resource_group.name
-  partition_count     = var.eventhub_partition_count
-  message_retention   = var.eventhub_message_retention
+  name              = var.eventhub_name
+  namespace_id      = azurerm_eventhub_namespace.this.id
+  partition_count   = var.eventhub_partition_count
+  message_retention = var.eventhub_message_retention
 }
 resource "azurerm_eventhub_namespace_authorization_rule" "this" {
   name                = var.eventhub_namespace_authorization_rule_name
@@ -105,7 +104,15 @@ resource "azurerm_storage_account" "this" {
   resource_group_name      = local.resource_group.name
   account_tier             = var.storage_account_tier
   account_replication_type = var.storage_account_replication_type
-  tags                     = merge(var.tags, var.storage_account_tags)
+  min_tls_version          = var.storage_account_min_tls_version
+
+  blob_properties {
+    delete_retention_policy {
+      days = var.storage_account_blob_delete_retention_days
+    }
+  }
+
+  tags = merge(var.tags, var.storage_account_tags)
 }
 
 moved {
@@ -129,7 +136,9 @@ resource "azurerm_linux_function_app" "this" {
   service_plan_id               = azurerm_service_plan.this.id
   storage_account_name          = var.create_storage_account ? azurerm_storage_account.this[0].name : data.azurerm_storage_account.this[0].name
   storage_account_access_key    = var.create_storage_account ? azurerm_storage_account.this[0].primary_access_key : data.azurerm_storage_account.this[0].primary_access_key
-  public_network_access_enabled = false
+  public_network_access_enabled = var.function_public_access_enabled
+  https_only                    = var.function_https_only
+  client_certificate_mode       = var.function_certificate_mode
 
   app_settings = {
     API_TOKEN                = data.streamsec_azure_tenant.this.account_token
@@ -139,6 +148,7 @@ resource "azurerm_linux_function_app" "this" {
   }
 
   site_config {
+    ftps_state = var.function_ftps_state
     application_stack {
       python_version = "3.10"
     }
@@ -165,9 +175,6 @@ resource "azurerm_monitor_aad_diagnostic_setting" "example" {
   eventhub_authorization_rule_id = azurerm_eventhub_namespace_authorization_rule.this.id
   enabled_log {
     category = "AuditLogs"
-    retention_policy {
-      enabled = false
-    }
   }
 }
 
