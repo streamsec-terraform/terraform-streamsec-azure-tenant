@@ -139,6 +139,7 @@ resource "azurerm_linux_function_app" "this" {
   public_network_access_enabled = var.function_public_access_enabled
   https_only                    = var.function_https_only
   client_certificate_mode       = var.function_certificate_mode
+  client_certificate_enabled    = var.function_certificate_enabled
 
   app_settings = {
     API_TOKEN                = data.streamsec_azure_tenant.this.account_token
@@ -148,7 +149,8 @@ resource "azurerm_linux_function_app" "this" {
   }
 
   site_config {
-    ftps_state = var.function_ftps_state
+    http2_enabled = var.function_http2_enabled
+    ftps_state    = var.function_ftps_state
     application_stack {
       python_version = "3.10"
     }

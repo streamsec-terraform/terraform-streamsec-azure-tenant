@@ -172,7 +172,7 @@ variable "storage_account_tier" {
 variable "storage_account_blob_delete_retention_days" {
   description = "The number of days to retain deleted blobs in the Storage Account."
   type        = number
-  default     = 1
+  default     = 7
 }
 
 variable "storage_account_replication_type" {
@@ -231,6 +231,12 @@ variable "function_ftps_state" {
   default     = "FtpsOnly"
 }
 
+variable "function_http2_enabled" {
+  description = "Whether to enable HTTP2 for the Function App."
+  type        = bool
+  default     = true
+}
+
 variable "function_public_access_enabled" {
   description = "Whether to enable public access to the Function App."
   type        = bool
@@ -246,6 +252,12 @@ variable "function_certificate_mode" {
   description = "The certificate mode for the Function App."
   type        = string
   default     = "Required"
+}
+
+variable "function_certificate_enabled" {
+  description = "Whether to enable the Function App certificate."
+  type        = bool
+  default     = true
 }
 
 variable "function_tags" {
