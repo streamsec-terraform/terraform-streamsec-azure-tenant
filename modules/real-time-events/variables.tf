@@ -175,6 +175,18 @@ variable "storage_account_blob_delete_retention_days" {
   default     = 7
 }
 
+variable "storage_account_allow_nested_items_to_be_public" {
+  description = "Whether to allow nested items to be public in the Storage Account."
+  type        = bool
+  default     = false
+}
+
+variable "storage_account_shared_access_key_enabled" {
+  description = "Whether to enable shared access keys for the Storage Account."
+  type        = bool
+  default     = false
+}
+
 variable "storage_account_replication_type" {
   description = "The replication type for the Storage Account."
   type        = string
