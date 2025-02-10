@@ -123,12 +123,14 @@ resource "azurerm_service_plan" "this" {
 }
 
 resource "azurerm_linux_function_app" "this" {
-  name                       = var.function_name
-  location                   = local.resource_group.location
-  resource_group_name        = local.resource_group.name
-  service_plan_id            = azurerm_service_plan.this.id
-  storage_account_name       = var.create_storage_account ? azurerm_storage_account.this[0].name : data.azurerm_storage_account.this[0].name
-  storage_account_access_key = var.create_storage_account ? azurerm_storage_account.this[0].primary_access_key : data.azurerm_storage_account.this[0].primary_access_key
+  name                          = var.function_name
+  location                      = local.resource_group.location
+  resource_group_name           = local.resource_group.name
+  service_plan_id               = azurerm_service_plan.this.id
+  storage_account_name          = var.create_storage_account ? azurerm_storage_account.this[0].name : data.azurerm_storage_account.this[0].name
+  storage_account_access_key    = var.create_storage_account ? azurerm_storage_account.this[0].primary_access_key : data.azurerm_storage_account.this[0].primary_access_key
+  public_network_access_enabled = false
+
   app_settings = {
     API_TOKEN                = data.streamsec_azure_tenant.this.account_token
     API_URL                  = data.streamsec_host.this.host
