@@ -184,7 +184,7 @@ variable "storage_account_allow_nested_items_to_be_public" {
 variable "storage_account_shared_access_key_enabled" {
   description = "Whether to enable shared access keys for the Storage Account."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "storage_account_replication_type" {

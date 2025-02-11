@@ -85,7 +85,7 @@ No modules.
 | <a name="input_storage_account_min_tls_version"></a> [storage\_account\_min\_tls\_version](#input\_storage\_account\_min\_tls\_version) | The minimum TLS version for the Storage Account. | `string` | `"TLS1_2"` | no |
 | <a name="input_storage_account_name_prefix"></a> [storage\_account\_name\_prefix](#input\_storage\_account\_name\_prefix) | The name of the Storage Account to prefix | `string` | `"storstreamsecrte"` | no |
 | <a name="input_storage_account_replication_type"></a> [storage\_account\_replication\_type](#input\_storage\_account\_replication\_type) | The replication type for the Storage Account. | `string` | `"LRS"` | no |
-| <a name="input_storage_account_shared_access_key_enabled"></a> [storage\_account\_shared\_access\_key\_enabled](#input\_storage\_account\_shared\_access\_key\_enabled) | Whether to enable shared access keys for the Storage Account. | `bool` | `false` | no |
+| <a name="input_storage_account_shared_access_key_enabled"></a> [storage\_account\_shared\_access\_key\_enabled](#input\_storage\_account\_shared\_access\_key\_enabled) | Whether to enable shared access keys for the Storage Account. | `bool` | `true` | no |
 | <a name="input_storage_account_tags"></a> [storage\_account\_tags](#input\_storage\_account\_tags) | The tags to apply to the Storage Account. | `map(string)` | `{}` | no |
 | <a name="input_storage_account_tier"></a> [storage\_account\_tier](#input\_storage\_account\_tier) | The tier for the Storage Account. | `string` | `"Standard"` | no |
 | <a name="input_subscriptions"></a> [subscriptions](#input\_subscriptions) | The list of Azure subscription IDs enable Real Time Events for. | `list(string)` | n/a | yes |
