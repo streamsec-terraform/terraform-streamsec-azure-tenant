@@ -136,7 +136,7 @@ resource "azuread_application_password" "this" {
   rotate_when_changed = {
     rotation = time_rotating.this[0].id
   }
-  depends_on = [azurerm_role_assignment.this[0]]
+  depends_on = [azurerm_role_assignment.this]
 }
 
 moved {

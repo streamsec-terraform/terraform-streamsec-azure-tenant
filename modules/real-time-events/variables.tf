@@ -288,6 +288,18 @@ variable "diagnostic_setting_name" {
   default     = "ds-streamsec-rte"
 }
 
+variable "create_aad_diagnostic_setting" {
+  description = "Whether to create a new AAD Diagnostic Setting for the Stream Security Azure resources."
+  type        = bool
+  default     = true
+}
+
+variable "create_subscription_diagnostic_setting" {
+  description = "Whether to create a new Subscription Diagnostic Setting for the Stream Security Azure resources."
+  type        = bool
+  default     = true
+}
+
 ################################################################################
 # Real Time Events General Variables
 ################################################################################

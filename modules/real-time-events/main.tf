@@ -173,7 +173,8 @@ resource "azurerm_linux_function_app" "this" {
 ################################################################################
 # Diagnostic Settings
 ################################################################################
-resource "azurerm_monitor_aad_diagnostic_setting" "example" {
+resource "azurerm_monitor_aad_diagnostic_setting" "this" {
+  count                          = var.create_aad_diagnostic_setting ? 1 : 0
   name                           = var.diagnostic_setting_name
   eventhub_name                  = azurerm_eventhub.this.name
   eventhub_authorization_rule_id = azurerm_eventhub_namespace_authorization_rule.this.id
@@ -182,9 +183,14 @@ resource "azurerm_monitor_aad_diagnostic_setting" "example" {
   }
 }
 
+moved {
+  from = azurerm_monitor_aad_diagnostic_setting.example
+  to   = azurerm_monitor_aad_diagnostic_setting.this[0]
+}
+
 resource "azurerm_monitor_diagnostic_setting" "this" {
   for_each = {
-    for subscription_id in var.subscriptions :
+    for subscription_id in(var.create_subscription_diagnostic_setting ? var.subscriptions : []) :
     subscription_id => "/subscriptions/${subscription_id}"
   }
 
