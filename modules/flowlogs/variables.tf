@@ -109,6 +109,41 @@ variable "function_name" {
   default     = "funcapp-stream-flowlogs"
 }
 
+variable "function_ftps_state" {
+  description = "The FTPS state for the Function App."
+  type        = string
+  default     = "FtpsOnly"
+}
+
+variable "function_http2_enabled" {
+  description = "Whether to enable HTTP2 for the Function App."
+  type        = bool
+  default     = true
+}
+
+variable "function_public_access_enabled" {
+  description = "Whether to enable public access to the Function App."
+  type        = bool
+  default     = false
+}
+variable "function_https_only" {
+  description = "Whether to only allow HTTPS access to the Function App."
+  type        = bool
+  default     = true
+}
+
+variable "function_certificate_mode" {
+  description = "The certificate mode for the Function App."
+  type        = string
+  default     = "Required"
+}
+
+variable "function_certificate_enabled" {
+  description = "Whether to enable the Function App certificate."
+  type        = bool
+  default     = true
+}
+
 variable "function_tags" {
   description = "The tags to apply to the Function App."
   type        = map(string)

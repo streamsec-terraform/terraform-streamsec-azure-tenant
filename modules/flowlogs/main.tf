@@ -66,12 +66,16 @@ resource "azurerm_service_plan" "this" {
 }
 
 resource "azurerm_linux_function_app" "this" {
-  name                       = var.function_name
-  location                   = local.resource_group.location
-  resource_group_name        = local.resource_group.name
-  service_plan_id            = azurerm_service_plan.this.id
-  storage_account_name       = data.azurerm_storage_account.this.name
-  storage_account_access_key = data.azurerm_storage_account.this.primary_access_key
+  name                          = var.function_name
+  location                      = local.resource_group.location
+  resource_group_name           = local.resource_group.name
+  service_plan_id               = azurerm_service_plan.this.id
+  storage_account_name          = data.azurerm_storage_account.this.name
+  storage_account_access_key    = data.azurerm_storage_account.this.primary_access_key
+  public_network_access_enabled = var.function_public_access_enabled
+  https_only                    = var.function_https_only
+  client_certificate_mode       = var.function_certificate_mode
+  client_certificate_enabled    = var.function_certificate_enabled
   app_settings = {
     API_TOKEN                 = data.streamsec_azure_tenant.this.account_token
     API_URL                   = data.streamsec_host.this.url
@@ -80,6 +84,8 @@ resource "azurerm_linux_function_app" "this" {
   }
 
   site_config {
+    http2_enabled = var.function_http2_enabled
+    ftps_state    = var.function_ftps_state
     application_stack {
       node_version = "14"
     }
