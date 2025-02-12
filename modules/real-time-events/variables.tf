@@ -97,12 +97,6 @@ variable "eventhub_partition_count" {
   default     = 4
 }
 
-variable "eventhub_consumer_group" {
-  description = "The name of the consumer group to create."
-  type        = string
-  default     = "$Default"
-}
-
 variable "eventhub_message_retention" {
   description = "The number of days to retain messages in the Event Hub."
   type        = number
