@@ -27,6 +27,7 @@ No modules.
 | [azurerm_application_insights.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_insights) | resource |
 | [azurerm_eventhub.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/eventhub) | resource |
 | [azurerm_eventhub_authorization_rule.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/eventhub_authorization_rule) | resource |
+| [azurerm_eventhub_consumer_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/eventhub_consumer_group) | resource |
 | [azurerm_eventhub_namespace.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/eventhub_namespace) | resource |
 | [azurerm_eventhub_namespace_authorization_rule.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/eventhub_namespace_authorization_rule) | resource |
 | [azurerm_linux_function_app.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_function_app) | resource |
@@ -38,6 +39,10 @@ No modules.
 | [random_string.this](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
 | [azurerm_application_insights.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/application_insights) | data source |
 | [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) | data source |
+| [azurerm_eventhub.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/eventhub) | data source |
+| [azurerm_eventhub_authorization_rule.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/eventhub_authorization_rule) | data source |
+| [azurerm_eventhub_namespace.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/eventhub_namespace) | data source |
+| [azurerm_eventhub_namespace_authorization_rule.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/eventhub_namespace_authorization_rule) | data source |
 | [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/resource_group) | data source |
 | [azurerm_storage_account.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/storage_account) | data source |
 | [streamsec_azure_tenant.this](https://registry.terraform.io/providers/streamsec-terraform/streamsec/latest/docs/data-sources/azure_tenant) | data source |
@@ -51,15 +56,19 @@ No modules.
 | <a name="input_application_insights_tags"></a> [application\_insights\_tags](#input\_application\_insights\_tags) | The tags to apply to the Application Insights instance. | `map(string)` | `{}` | no |
 | <a name="input_create_aad_diagnostic_setting"></a> [create\_aad\_diagnostic\_setting](#input\_create\_aad\_diagnostic\_setting) | Whether to create a new AAD Diagnostic Setting for the Stream Security Azure resources. | `bool` | `true` | no |
 | <a name="input_create_application_insights"></a> [create\_application\_insights](#input\_create\_application\_insights) | Whether to create a new Application Insights instance for the Stream Security Azure resources. | `bool` | `true` | no |
+| <a name="input_create_eventhub"></a> [create\_eventhub](#input\_create\_eventhub) | Whether to create a new Event Hub for the Stream Security Azure resources. | `bool` | `true` | no |
+| <a name="input_create_eventhub_namespace"></a> [create\_eventhub\_namespace](#input\_create\_eventhub\_namespace) | Whether to create a new Event Hub namespace for the Stream Security Azure resources. | `bool` | `true` | no |
 | <a name="input_create_resource_group"></a> [create\_resource\_group](#input\_create\_resource\_group) | Whether to create a new resource group for the Stream Security Azure resources. if false, the resources will be created in the resource group specified by the `resource_group_name` variable. | `bool` | `true` | no |
 | <a name="input_create_storage_account"></a> [create\_storage\_account](#input\_create\_storage\_account) | Whether to create a new Storage Account for the Stream Security Azure resources. if false, the resources will be created in the Storage Account specified by the `existing_storage_account_name` variable. | `bool` | `true` | no |
 | <a name="input_create_subscription_diagnostic_setting"></a> [create\_subscription\_diagnostic\_setting](#input\_create\_subscription\_diagnostic\_setting) | Whether to create a new Subscription Diagnostic Setting for the Stream Security Azure resources. | `bool` | `true` | no |
 | <a name="input_diagnostic_setting_name"></a> [diagnostic\_setting\_name](#input\_diagnostic\_setting\_name) | The name of the Diagnostic Setting to create. | `string` | `"ds-streamsec-rte"` | no |
 | <a name="input_eventhub_authorization_rule_name"></a> [eventhub\_authorization\_rule\_name](#input\_eventhub\_authorization\_rule\_name) | The name of the Event Hub authorization rule to create. | `string` | `"eventhub-ar-streamsec-rte"` | no |
+| <a name="input_eventhub_consumer_group"></a> [eventhub\_consumer\_group](#input\_eventhub\_consumer\_group) | The name of the consumer group to create. | `string` | `"$Default"` | no |
 | <a name="input_eventhub_message_retention"></a> [eventhub\_message\_retention](#input\_eventhub\_message\_retention) | The number of days to retain messages in the Event Hub. | `number` | `1` | no |
 | <a name="input_eventhub_name"></a> [eventhub\_name](#input\_eventhub\_name) | The name of the Event Hub to create. | `string` | `"eventhub-streamsec-rte"` | no |
 | <a name="input_eventhub_namespace_authorization_rule_name"></a> [eventhub\_namespace\_authorization\_rule\_name](#input\_eventhub\_namespace\_authorization\_rule\_name) | The name of the Event Hub Namespace authorization rule to create. | `string` | `"eventhubns-ar-streamsec-rte"` | no |
 | <a name="input_eventhub_namespace_name"></a> [eventhub\_namespace\_name](#input\_eventhub\_namespace\_name) | The name of the Event Hub namespace to create. | `string` | `"eventhubns-streamsec-rte"` | no |
+| <a name="input_eventhub_namespace_resource_group_name"></a> [eventhub\_namespace\_resource\_group\_name](#input\_eventhub\_namespace\_resource\_group\_name) | The name of the resource group where the Event Hub namespace is created. Only used if `create_eventhub_namespace` is set to false. | `string` | `null` | no |
 | <a name="input_eventhub_namespace_sku"></a> [eventhub\_namespace\_sku](#input\_eventhub\_namespace\_sku) | The SKU for the Event Hub namespace. | `string` | `"Standard"` | no |
 | <a name="input_eventhub_namespace_tags"></a> [eventhub\_namespace\_tags](#input\_eventhub\_namespace\_tags) | The tags to apply to the Event Hub namespace. | `map(string)` | `{}` | no |
 | <a name="input_eventhub_partition_count"></a> [eventhub\_partition\_count](#input\_eventhub\_partition\_count) | The number of partitions for the Event Hub. | `number` | `4` | no |

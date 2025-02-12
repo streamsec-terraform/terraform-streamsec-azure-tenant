@@ -45,6 +45,18 @@ variable "eventhub_namespace_name" {
   default     = "eventhubns-streamsec-rte"
 }
 
+variable "create_eventhub_namespace" {
+  description = "Whether to create a new Event Hub namespace for the Stream Security Azure resources."
+  type        = bool
+  default     = true
+}
+
+variable "eventhub_namespace_resource_group_name" {
+  description = "The name of the resource group where the Event Hub namespace is created. Only used if `create_eventhub_namespace` is set to false."
+  type        = string
+  default     = null
+}
+
 variable "eventhub_namespace_sku" {
   description = "The SKU for the Event Hub namespace."
   type        = string
@@ -67,6 +79,12 @@ variable "eventhub_namespace_tags" {
 # Real Time Events Event Hub Variables
 ################################################################################
 
+variable "create_eventhub" {
+  description = "Whether to create a new Event Hub for the Stream Security Azure resources."
+  type        = bool
+  default     = true
+}
+
 variable "eventhub_name" {
   description = "The name of the Event Hub to create."
   type        = string
@@ -77,6 +95,12 @@ variable "eventhub_partition_count" {
   description = "The number of partitions for the Event Hub."
   type        = number
   default     = 4
+}
+
+variable "eventhub_consumer_group" {
+  description = "The name of the consumer group to create."
+  type        = string
+  default     = "$Default"
 }
 
 variable "eventhub_message_retention" {
