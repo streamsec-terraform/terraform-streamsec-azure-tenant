@@ -23,7 +23,6 @@ locals {
   eventhub_namespace                    = var.create_eventhub_namespace ? azurerm_eventhub_namespace.this[0] : data.azurerm_eventhub_namespace.this[0]
   eventhub                              = var.create_eventhub ? azurerm_eventhub.this[0] : data.azurerm_eventhub.this[0]
   eventhub_namespace_authorization_rule = var.create_eventhub_namespace ? azurerm_eventhub_namespace_authorization_rule.this[0] : data.azurerm_eventhub_namespace_authorization_rule.this[0]
-  eventhub_authorization_rule           = var.create_eventhub ? azurerm_eventhub_authorization_rule.this[0] : data.azurerm_eventhub_authorization_rule.this[0]
 }
 
 ################################################################################
@@ -88,14 +87,6 @@ resource "azurerm_eventhub_namespace_authorization_rule" "this" {
 moved {
   from = azurerm_eventhub_namespace_authorization_rule.this
   to   = azurerm_eventhub_namespace_authorization_rule.this[0]
-}
-
-data "azurerm_eventhub_authorization_rule" "this" {
-  count               = var.create_eventhub ? 0 : 1
-  name                = var.eventhub_authorization_rule_name
-  namespace_name      = var.eventhub_namespace_name
-  eventhub_name       = var.eventhub_name
-  resource_group_name = var.eventhub_namespace_resource_group_name
 }
 
 resource "azurerm_eventhub_authorization_rule" "this" {
@@ -201,7 +192,7 @@ resource "azurerm_linux_function_app" "this" {
   app_settings = {
     API_TOKEN                = data.streamsec_azure_tenant.this.account_token
     API_URL                  = data.streamsec_host.this.host
-    EventHubConnectionString = "Endpoint=sb://${local.eventhub_namespace.name}.servicebus.windows.net/;SharedAccessKeyName=${local.eventhub_authorization_rule.name};SharedAccessKey=${local.eventhub_authorization_rule.primary_key};EntityPath=${local.eventhub.name}"
+    EventHubConnectionString = "Endpoint=sb://${local.eventhub_namespace.name}.servicebus.windows.net/;SharedAccessKeyName=${local.eventhub_namespace_authorization_rule.name};SharedAccessKey=${local.eventhub_namespace_authorization_rule.primary_key};EntityPath=${local.eventhub.name}"
     WEBSITE_RUN_FROM_PACKAGE = "https://${var.function_bucket_name}.s3.amazonaws.com/${var.function_zip_filename}"
   }
 
