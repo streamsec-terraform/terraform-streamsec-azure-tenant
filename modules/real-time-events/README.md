@@ -91,12 +91,10 @@ No modules.
 | <a name="input_resource_group_tags"></a> [resource\_group\_tags](#input\_resource\_group\_tags) | The tags to apply to the resource group. | `map(string)` | `{}` | no |
 | <a name="input_service_plan_name"></a> [service\_plan\_name](#input\_service\_plan\_name) | The name of the Service Plan to create. | `string` | `"asp-streamsec-rte"` | no |
 | <a name="input_service_plan_tags"></a> [service\_plan\_tags](#input\_service\_plan\_tags) | The tags to apply to the Service Plan. | `map(string)` | `{}` | no |
-| <a name="input_storage_account_allow_nested_items_to_be_public"></a> [storage\_account\_allow\_nested\_items\_to\_be\_public](#input\_storage\_account\_allow\_nested\_items\_to\_be\_public) | Whether to allow nested items to be public in the Storage Account. | `bool` | `false` | no |
 | <a name="input_storage_account_blob_delete_retention_days"></a> [storage\_account\_blob\_delete\_retention\_days](#input\_storage\_account\_blob\_delete\_retention\_days) | The number of days to retain deleted blobs in the Storage Account. | `number` | `7` | no |
 | <a name="input_storage_account_min_tls_version"></a> [storage\_account\_min\_tls\_version](#input\_storage\_account\_min\_tls\_version) | The minimum TLS version for the Storage Account. | `string` | `"TLS1_2"` | no |
 | <a name="input_storage_account_name_prefix"></a> [storage\_account\_name\_prefix](#input\_storage\_account\_name\_prefix) | The name of the Storage Account to prefix | `string` | `"storstreamsecrte"` | no |
 | <a name="input_storage_account_replication_type"></a> [storage\_account\_replication\_type](#input\_storage\_account\_replication\_type) | The replication type for the Storage Account. | `string` | `"LRS"` | no |
-| <a name="input_storage_account_shared_access_key_enabled"></a> [storage\_account\_shared\_access\_key\_enabled](#input\_storage\_account\_shared\_access\_key\_enabled) | Whether to enable shared access keys for the Storage Account. | `bool` | `true` | no |
 | <a name="input_storage_account_tags"></a> [storage\_account\_tags](#input\_storage\_account\_tags) | The tags to apply to the Storage Account. | `map(string)` | `{}` | no |
 | <a name="input_storage_account_tier"></a> [storage\_account\_tier](#input\_storage\_account\_tier) | The tier for the Storage Account. | `string` | `"Standard"` | no |
 | <a name="input_subscriptions"></a> [subscriptions](#input\_subscriptions) | The list of Azure subscription IDs enable Real Time Events for. | `list(string)` | n/a | yes |

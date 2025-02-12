@@ -163,15 +163,13 @@ data "azurerm_storage_account" "this" {
 }
 
 resource "azurerm_storage_account" "this" {
-  count                           = var.create_storage_account ? 1 : 0
-  name                            = "${var.storage_account_name_prefix}${random_string.this.result}"
-  location                        = local.resource_group.location
-  resource_group_name             = local.resource_group.name
-  account_tier                    = var.storage_account_tier
-  account_replication_type        = var.storage_account_replication_type
-  min_tls_version                 = var.storage_account_min_tls_version
-  allow_nested_items_to_be_public = var.storage_account_allow_nested_items_to_be_public
-  shared_access_key_enabled       = var.storage_account_shared_access_key_enabled
+  count                    = var.create_storage_account ? 1 : 0
+  name                     = "${var.storage_account_name_prefix}${random_string.this.result}"
+  location                 = local.resource_group.location
+  resource_group_name      = local.resource_group.name
+  account_tier             = var.storage_account_tier
+  account_replication_type = var.storage_account_replication_type
+  min_tls_version          = var.storage_account_min_tls_version
 
   blob_properties {
     delete_retention_policy {
