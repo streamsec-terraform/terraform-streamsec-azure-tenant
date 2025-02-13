@@ -16,6 +16,18 @@ variable "subscriptions" {
 # Stream Security Application Registration Variables
 ################################################################################
 
+variable "create_app_reg" {
+  description = "Whether to create a new Azure AD application registration for Stream.Security."
+  type        = bool
+  default     = true
+}
+
+variable "app_reg_client_secret" {
+  description = "The client secret for the Azure AD application registration. only required if `create_app_reg` is false."
+  type        = string
+  default     = null
+}
+
 variable "app_reg_display_name" {
   description = "The display name for the Azure AD application registration."
   type        = string

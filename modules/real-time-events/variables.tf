@@ -45,6 +45,18 @@ variable "eventhub_namespace_name" {
   default     = "eventhubns-streamsec-rte"
 }
 
+variable "create_eventhub_namespace" {
+  description = "Whether to create a new Event Hub namespace for the Stream Security Azure resources."
+  type        = bool
+  default     = true
+}
+
+variable "eventhub_namespace_resource_group_name" {
+  description = "The name of the resource group where the Event Hub namespace is created. Only used if `create_eventhub_namespace` is set to false."
+  type        = string
+  default     = null
+}
+
 variable "eventhub_namespace_sku" {
   description = "The SKU for the Event Hub namespace."
   type        = string
@@ -66,6 +78,12 @@ variable "eventhub_namespace_tags" {
 ################################################################################
 # Real Time Events Event Hub Variables
 ################################################################################
+
+variable "create_eventhub" {
+  description = "Whether to create a new Event Hub for the Stream Security Azure resources."
+  type        = bool
+  default     = true
+}
 
 variable "eventhub_name" {
   description = "The name of the Event Hub to create."
@@ -157,10 +175,22 @@ variable "storage_account_name_prefix" {
   }
 }
 
+variable "storage_account_min_tls_version" {
+  description = "The minimum TLS version for the Storage Account."
+  type        = string
+  default     = "TLS1_2"
+}
+
 variable "storage_account_tier" {
   description = "The tier for the Storage Account."
   type        = string
   default     = "Standard"
+}
+
+variable "storage_account_blob_delete_retention_days" {
+  description = "The number of days to retain deleted blobs in the Storage Account."
+  type        = number
+  default     = 7
 }
 
 variable "storage_account_replication_type" {
@@ -213,6 +243,41 @@ variable "function_zip_filename" {
   default     = "LightlyticsEventhubtrigger.zip"
 }
 
+variable "function_ftps_state" {
+  description = "The FTPS state for the Function App."
+  type        = string
+  default     = "FtpsOnly"
+}
+
+variable "function_http2_enabled" {
+  description = "Whether to enable HTTP2 for the Function App."
+  type        = bool
+  default     = true
+}
+
+variable "function_public_access_enabled" {
+  description = "Whether to enable public access to the Function App."
+  type        = bool
+  default     = false
+}
+variable "function_https_only" {
+  description = "Whether to only allow HTTPS access to the Function App."
+  type        = bool
+  default     = true
+}
+
+variable "function_certificate_mode" {
+  description = "The certificate mode for the Function App."
+  type        = string
+  default     = "Required"
+}
+
+variable "function_certificate_enabled" {
+  description = "Whether to enable the Function App certificate."
+  type        = bool
+  default     = true
+}
+
 variable "function_tags" {
   description = "The tags to apply to the Function App."
   type        = map(string)
@@ -227,6 +292,18 @@ variable "diagnostic_setting_name" {
   description = "The name of the Diagnostic Setting to create."
   type        = string
   default     = "ds-streamsec-rte"
+}
+
+variable "create_aad_diagnostic_setting" {
+  description = "Whether to create a new AAD Diagnostic Setting for the Stream Security Azure resources."
+  type        = bool
+  default     = true
+}
+
+variable "create_subscription_diagnostic_setting" {
+  description = "Whether to create a new Subscription Diagnostic Setting for the Stream Security Azure resources."
+  type        = bool
+  default     = true
 }
 
 ################################################################################

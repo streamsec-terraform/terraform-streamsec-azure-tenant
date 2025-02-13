@@ -19,13 +19,23 @@ resource "azurerm_resource_group" "this" {
 }
 
 locals {
-  resource_group = var.create_resource_group ? azurerm_resource_group.this[0] : data.azurerm_resource_group.this[0]
+  resource_group                        = var.create_resource_group ? azurerm_resource_group.this[0] : data.azurerm_resource_group.this[0]
+  eventhub_namespace                    = var.create_eventhub_namespace ? azurerm_eventhub_namespace.this[0] : data.azurerm_eventhub_namespace.this[0]
+  eventhub                              = var.create_eventhub ? azurerm_eventhub.this[0] : data.azurerm_eventhub.this[0]
+  eventhub_namespace_authorization_rule = var.create_eventhub_namespace ? azurerm_eventhub_namespace_authorization_rule.this[0] : data.azurerm_eventhub_namespace_authorization_rule.this[0]
 }
 
 ################################################################################
 # Event Hub
 ################################################################################
+
+data "azurerm_eventhub_namespace" "this" {
+  count               = var.create_eventhub_namespace ? 0 : 1
+  name                = var.eventhub_namespace_name
+  resource_group_name = var.eventhub_namespace_resource_group_name
+}
 resource "azurerm_eventhub_namespace" "this" {
+  count               = var.create_eventhub_namespace ? 1 : 0
   name                = var.eventhub_namespace_name
   location            = local.resource_group.location
   resource_group_name = local.resource_group.name
@@ -33,27 +43,64 @@ resource "azurerm_eventhub_namespace" "this" {
   tags                = merge(var.tags, var.eventhub_namespace_tags)
 }
 
-resource "azurerm_eventhub" "this" {
-  name                = var.eventhub_name
-  namespace_name      = azurerm_eventhub_namespace.this.name
-  resource_group_name = local.resource_group.name
-  partition_count     = var.eventhub_partition_count
-  message_retention   = var.eventhub_message_retention
+moved {
+  from = azurerm_eventhub_namespace.this
+  to   = azurerm_eventhub_namespace.this[0]
 }
-resource "azurerm_eventhub_namespace_authorization_rule" "this" {
+
+data "azurerm_eventhub" "this" {
+  count               = var.create_eventhub ? 0 : 1
+  name                = var.eventhub_name
+  namespace_name      = var.eventhub_namespace_name
+  resource_group_name = var.eventhub_namespace_resource_group_name
+}
+
+resource "azurerm_eventhub" "this" {
+  count             = var.create_eventhub ? 1 : 0
+  name              = var.eventhub_name
+  namespace_id      = local.eventhub_namespace.id
+  partition_count   = var.eventhub_partition_count
+  message_retention = var.eventhub_message_retention
+}
+
+moved {
+  from = azurerm_eventhub.this
+  to   = azurerm_eventhub.this[0]
+}
+
+data "azurerm_eventhub_namespace_authorization_rule" "this" {
+  count               = var.create_eventhub_namespace ? 0 : 1
   name                = var.eventhub_namespace_authorization_rule_name
-  namespace_name      = azurerm_eventhub_namespace.this.name
+  namespace_name      = var.eventhub_namespace_name
+  resource_group_name = var.eventhub_namespace_resource_group_name
+}
+
+resource "azurerm_eventhub_namespace_authorization_rule" "this" {
+  count               = var.create_eventhub_namespace ? 1 : 0
+  name                = var.eventhub_namespace_authorization_rule_name
+  namespace_name      = local.eventhub_namespace.name
   resource_group_name = local.resource_group.name
   listen              = true
   send                = true
 }
 
+moved {
+  from = azurerm_eventhub_namespace_authorization_rule.this
+  to   = azurerm_eventhub_namespace_authorization_rule.this[0]
+}
+
 resource "azurerm_eventhub_authorization_rule" "this" {
+  count               = var.create_eventhub ? 1 : 0
   name                = var.eventhub_authorization_rule_name
-  namespace_name      = azurerm_eventhub_namespace.this.name
+  namespace_name      = local.eventhub_namespace.name
   resource_group_name = local.resource_group.name
-  eventhub_name       = azurerm_eventhub.this.name
+  eventhub_name       = local.eventhub.name
   listen              = true
+}
+
+moved {
+  from = azurerm_eventhub_authorization_rule.this
+  to   = azurerm_eventhub_authorization_rule.this[0]
 }
 
 ################################################################################
@@ -105,7 +152,15 @@ resource "azurerm_storage_account" "this" {
   resource_group_name      = local.resource_group.name
   account_tier             = var.storage_account_tier
   account_replication_type = var.storage_account_replication_type
-  tags                     = merge(var.tags, var.storage_account_tags)
+  min_tls_version          = var.storage_account_min_tls_version
+
+  blob_properties {
+    delete_retention_policy {
+      days = var.storage_account_blob_delete_retention_days
+    }
+  }
+
+  tags = merge(var.tags, var.storage_account_tags)
 }
 
 moved {
@@ -123,20 +178,27 @@ resource "azurerm_service_plan" "this" {
 }
 
 resource "azurerm_linux_function_app" "this" {
-  name                       = var.function_name
-  location                   = local.resource_group.location
-  resource_group_name        = local.resource_group.name
-  service_plan_id            = azurerm_service_plan.this.id
-  storage_account_name       = var.create_storage_account ? azurerm_storage_account.this[0].name : data.azurerm_storage_account.this[0].name
-  storage_account_access_key = var.create_storage_account ? azurerm_storage_account.this[0].primary_access_key : data.azurerm_storage_account.this[0].primary_access_key
+  name                          = var.function_name
+  location                      = local.resource_group.location
+  resource_group_name           = local.resource_group.name
+  service_plan_id               = azurerm_service_plan.this.id
+  storage_account_name          = var.create_storage_account ? azurerm_storage_account.this[0].name : data.azurerm_storage_account.this[0].name
+  storage_account_access_key    = var.create_storage_account ? azurerm_storage_account.this[0].primary_access_key : data.azurerm_storage_account.this[0].primary_access_key
+  public_network_access_enabled = var.function_public_access_enabled
+  https_only                    = var.function_https_only
+  client_certificate_mode       = var.function_certificate_mode
+  client_certificate_enabled    = var.function_certificate_enabled
+
   app_settings = {
     API_TOKEN                = data.streamsec_azure_tenant.this.account_token
     API_URL                  = data.streamsec_host.this.host
-    EventHubConnectionString = "Endpoint=sb://${azurerm_eventhub_namespace.this.name}.servicebus.windows.net/;SharedAccessKeyName=${azurerm_eventhub_namespace_authorization_rule.this.name};SharedAccessKey=${azurerm_eventhub_namespace_authorization_rule.this.primary_key};EntityPath=${azurerm_eventhub.this.name}"
+    EventHubConnectionString = "Endpoint=sb://${local.eventhub_namespace.name}.servicebus.windows.net/;SharedAccessKeyName=${local.eventhub_namespace_authorization_rule.name};SharedAccessKey=${local.eventhub_namespace_authorization_rule.primary_key};EntityPath=${local.eventhub.name}"
     WEBSITE_RUN_FROM_PACKAGE = "https://${var.function_bucket_name}.s3.amazonaws.com/${var.function_zip_filename}"
   }
 
   site_config {
+    http2_enabled = var.function_http2_enabled
+    ftps_state    = var.function_ftps_state
     application_stack {
       python_version = "3.10"
     }
@@ -152,33 +214,37 @@ resource "azurerm_linux_function_app" "this" {
       tags["hidden-link: /app-insights-conn-string"]
     ]
   }
+  depends_on = [local.eventhub]
 }
 
 ################################################################################
 # Diagnostic Settings
 ################################################################################
-resource "azurerm_monitor_aad_diagnostic_setting" "example" {
+resource "azurerm_monitor_aad_diagnostic_setting" "this" {
+  count                          = var.create_aad_diagnostic_setting ? 1 : 0
   name                           = var.diagnostic_setting_name
-  eventhub_name                  = azurerm_eventhub.this.name
-  eventhub_authorization_rule_id = azurerm_eventhub_namespace_authorization_rule.this.id
+  eventhub_name                  = local.eventhub.name
+  eventhub_authorization_rule_id = local.eventhub_namespace_authorization_rule.id
   enabled_log {
     category = "AuditLogs"
-    retention_policy {
-      enabled = false
-    }
   }
+}
+
+moved {
+  from = azurerm_monitor_aad_diagnostic_setting.example
+  to   = azurerm_monitor_aad_diagnostic_setting.this[0]
 }
 
 resource "azurerm_monitor_diagnostic_setting" "this" {
   for_each = {
-    for subscription_id in var.subscriptions :
+    for subscription_id in(var.create_subscription_diagnostic_setting ? var.subscriptions : []) :
     subscription_id => "/subscriptions/${subscription_id}"
   }
 
   name                           = var.diagnostic_setting_name
   target_resource_id             = each.value
-  eventhub_name                  = azurerm_eventhub.this.name
-  eventhub_authorization_rule_id = azurerm_eventhub_namespace_authorization_rule.this.id
+  eventhub_name                  = local.eventhub.name
+  eventhub_authorization_rule_id = local.eventhub_namespace_authorization_rule.id
 
   enabled_log {
     category = "Administrative"

@@ -4,14 +4,14 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 2.0 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.0 |
 | <a name="requirement_streamsec"></a> [streamsec](#requirement\_streamsec) | >= 1.8 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >= 2.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >= 4.0 |
 | <a name="provider_streamsec"></a> [streamsec](#provider\_streamsec) | >= 1.8 |
 
 ## Modules
@@ -43,7 +43,13 @@ No modules.
 | <a name="input_create_resource_group"></a> [create\_resource\_group](#input\_create\_resource\_group) | Whether to create a new resource group for the Stream Security Azure resources. if false, the resources will be created in the resource group specified by the `resource_group_name` variable. | `bool` | `true` | no |
 | <a name="input_existing_application_insights_name"></a> [existing\_application\_insights\_name](#input\_existing\_application\_insights\_name) | The name of the existing Application Insights instance to use in case `create_application_insights` is set to false. | `string` | `null` | no |
 | <a name="input_existing_application_insights_resource_group_name"></a> [existing\_application\_insights\_resource\_group\_name](#input\_existing\_application\_insights\_resource\_group\_name) | The name of the resource group to create/import the Application Insights instance | `string` | `null` | no |
+| <a name="input_function_certificate_enabled"></a> [function\_certificate\_enabled](#input\_function\_certificate\_enabled) | Whether to enable the Function App certificate. | `bool` | `true` | no |
+| <a name="input_function_certificate_mode"></a> [function\_certificate\_mode](#input\_function\_certificate\_mode) | The certificate mode for the Function App. | `string` | `"Required"` | no |
+| <a name="input_function_ftps_state"></a> [function\_ftps\_state](#input\_function\_ftps\_state) | The FTPS state for the Function App. | `string` | `"FtpsOnly"` | no |
+| <a name="input_function_http2_enabled"></a> [function\_http2\_enabled](#input\_function\_http2\_enabled) | Whether to enable HTTP2 for the Function App. | `bool` | `true` | no |
+| <a name="input_function_https_only"></a> [function\_https\_only](#input\_function\_https\_only) | Whether to only allow HTTPS access to the Function App. | `bool` | `true` | no |
 | <a name="input_function_name"></a> [function\_name](#input\_function\_name) | The name of the Function App to create. | `string` | `"funcapp-stream-flowlogs"` | no |
+| <a name="input_function_public_access_enabled"></a> [function\_public\_access\_enabled](#input\_function\_public\_access\_enabled) | Whether to enable public access to the Function App. | `bool` | `false` | no |
 | <a name="input_function_tags"></a> [function\_tags](#input\_function\_tags) | The tags to apply to the Function App. | `map(string)` | `{}` | no |
 | <a name="input_location"></a> [location](#input\_location) | The location to create the Stream Security Azure resources in. | `string` | `"East US"` | no |
 | <a name="input_network_traffic_container_name"></a> [network\_traffic\_container\_name](#input\_network\_traffic\_container\_name) | The name of the Storage Account container to store the network traffic logs in. | `string` | `"insights-logs-flowlogflowevent"` | no |
