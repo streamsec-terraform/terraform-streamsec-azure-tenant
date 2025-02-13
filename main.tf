@@ -144,10 +144,16 @@ moved {
   to   = azuread_application_password.this[0]
 }
 
+resource "time_sleep" "wait" {
+  depends_on      = [azuread_application_password.this[0]]
+  create_duration = "15s"
+}
+
+
 resource "streamsec_azure_tenant_ack" "this" {
   tenant_id     = data.azurerm_client_config.current.tenant_id
   client_id     = var.create_app_reg ? azuread_application_registration.this[0].client_id : data.azuread_application.this[0].client_id
   client_secret = var.create_app_reg ? azuread_application_password.this[0].value : var.app_reg_client_secret
   subscriptions = var.subscriptions
-  depends_on    = [azuread_application_password.this[0]]
+  depends_on    = [time_sleep.wait]
 }
