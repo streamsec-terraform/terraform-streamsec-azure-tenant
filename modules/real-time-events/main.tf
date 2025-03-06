@@ -207,7 +207,7 @@ resource "azurerm_linux_function_app" "this" {
     http2_enabled = var.function_http2_enabled
     ftps_state    = var.function_ftps_state
     application_stack {
-      python_version = "3.10"
+      python_version = "3.11"
     }
     application_insights_key = var.create_application_insights ? azurerm_application_insights.this[0].instrumentation_key : data.azurerm_application_insights.this[0].instrumentation_key
   }
