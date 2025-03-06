@@ -87,6 +87,12 @@ variable "storage_account_resource_group_name" {
 # Flow Logs Service Plan Variables
 ################################################################################
 
+variable "service_plan_id" {
+  description = "The ID of the Service Plan to use for the Function App. If not provided, a new Service Plan will be created."
+  type        = string
+  default     = null
+}
+
 variable "service_plan_name" {
   description = "The name of the Service Plan to create."
   type        = string
@@ -119,6 +125,12 @@ variable "function_http2_enabled" {
   description = "Whether to enable HTTP2 for the Function App."
   type        = bool
   default     = true
+}
+
+variable "function_virtual_network_subnet_id" {
+  description = "The ID of the subnet to connect the Function App to."
+  type        = string
+  default     = null
 }
 
 variable "function_public_access_enabled" {
