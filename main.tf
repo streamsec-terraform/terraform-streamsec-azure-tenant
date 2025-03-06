@@ -16,7 +16,7 @@ locals {
     "Directory.Read.All",
     "UserAuthenticationMethod.Read.All",
     "IdentityRiskEvent.Read.All",
-    "IdentityRiskUser.Read.All",
+    "IdentityRiskyUser.Read.All",
     "SecurityEvents.Read.All",
     "SecurityIncident.Read.All",
   ]
