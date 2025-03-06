@@ -56,7 +56,7 @@ data "azurerm_storage_account" "this" {
 }
 
 resource "azurerm_service_plan" "this" {
-  count               = var.service_plan_id ? 1 : 0
+  count               = var.service_plan_id == null ? 1 : 0
   name                = var.service_plan_name
   location            = local.resource_group.location
   resource_group_name = local.resource_group.name
@@ -75,7 +75,7 @@ resource "azurerm_linux_function_app" "this" {
   name                          = var.function_name
   location                      = local.resource_group.location
   resource_group_name           = local.resource_group.name
-  service_plan_id               = var.service_plan_id ? var.service_plan_id : azurerm_service_plan.this[0].id
+  service_plan_id               = var.service_plan_id == null ? azurerm_service_plan.this[0].id : var.service_plan_id
   storage_account_name          = data.azurerm_storage_account.this.name
   storage_account_access_key    = data.azurerm_storage_account.this.primary_access_key
   public_network_access_enabled = var.function_public_access_enabled
