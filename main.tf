@@ -15,15 +15,15 @@ locals {
   application_permissions = [
     "Directory.Read.All",
     "UserAuthenticationMethod.Read.All",
+    "IdentityRiskEvent.Read.All",
+    "IdentityRiskyUser.Read.All",
+    "SecurityEvents.Read.All",
+    "SecurityIncident.Read.All",
   ]
   delegated_permissions = [
     "Subscription.Read.All",
     "User.Read",
     "UserAuthenticationMethod.Read",
-    "IdentityRiskEvent.Read.All",
-    "IdentityRiskUser.Read.All",
-    "SecurityEvents.Read.All",
-    "SecurityIncident.Read.All",
     "Application.Read.All",
     "Directory.Read.All",
     "Group.Read.All",
