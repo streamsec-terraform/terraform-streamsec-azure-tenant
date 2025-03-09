@@ -68,6 +68,14 @@ moved {
   to   = azurerm_eventhub.this[0]
 }
 
+resource "azurerm_eventhub_consumer_group" "this" {
+  count               = var.eventhub_consumer_group_name == "$Default" ? 0 : 1
+  name                = var.eventhub_consumer_group_name
+  eventhub_name       = local.eventhub.name
+  namespace_name      = local.eventhub_namespace.name
+  resource_group_name = local.eventhub_namespace.resource_group_name
+}
+
 data "azurerm_eventhub_namespace_authorization_rule" "this" {
   count               = var.create_eventhub_namespace ? 0 : 1
   name                = var.eventhub_namespace_authorization_rule_name
@@ -201,6 +209,7 @@ resource "azurerm_linux_function_app" "this" {
     API_URL                  = data.streamsec_host.this.host
     EventHubConnectionString = "Endpoint=sb://${local.eventhub_namespace.name}.servicebus.windows.net/;SharedAccessKeyName=${local.eventhub_namespace_authorization_rule.name};SharedAccessKey=${local.eventhub_namespace_authorization_rule.primary_key};EntityPath=${local.eventhub.name}"
     WEBSITE_RUN_FROM_PACKAGE = "https://${var.function_bucket_name}.s3.amazonaws.com/${var.function_zip_filename}"
+    CONSUMER_GROUP           = var.eventhub_consumer_group_name
   }
 
   site_config {
