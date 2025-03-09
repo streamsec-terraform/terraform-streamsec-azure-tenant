@@ -51,10 +51,12 @@ No modules.
 | <a name="input_function_name"></a> [function\_name](#input\_function\_name) | The name of the Function App to create. | `string` | `"funcapp-stream-flowlogs"` | no |
 | <a name="input_function_public_access_enabled"></a> [function\_public\_access\_enabled](#input\_function\_public\_access\_enabled) | Whether to enable public access to the Function App. | `bool` | `false` | no |
 | <a name="input_function_tags"></a> [function\_tags](#input\_function\_tags) | The tags to apply to the Function App. | `map(string)` | `{}` | no |
+| <a name="input_function_virtual_network_subnet_id"></a> [function\_virtual\_network\_subnet\_id](#input\_function\_virtual\_network\_subnet\_id) | The ID of the subnet to connect the Function App to. | `string` | `null` | no |
 | <a name="input_location"></a> [location](#input\_location) | The location to create the Stream Security Azure resources in. | `string` | `"East US"` | no |
 | <a name="input_network_traffic_container_name"></a> [network\_traffic\_container\_name](#input\_network\_traffic\_container\_name) | The name of the Storage Account container to store the network traffic logs in. | `string` | `"insights-logs-flowlogflowevent"` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the resource group to create the Stream Security Azure resources in. | `string` | `"rg-stream-flowlogs"` | no |
 | <a name="input_resource_group_tags"></a> [resource\_group\_tags](#input\_resource\_group\_tags) | The tags to apply to the resource group. | `map(string)` | `{}` | no |
+| <a name="input_service_plan_id"></a> [service\_plan\_id](#input\_service\_plan\_id) | The ID of the Service Plan to use for the Function App. If not provided, a new Service Plan will be created. | `string` | `null` | no |
 | <a name="input_service_plan_name"></a> [service\_plan\_name](#input\_service\_plan\_name) | The name of the Service Plan to create. | `string` | `"asp-stream-flowlogs"` | no |
 | <a name="input_service_plan_tags"></a> [service\_plan\_tags](#input\_service\_plan\_tags) | The tags to apply to the Service Plan. | `map(string)` | `{}` | no |
 | <a name="input_storage_account_name"></a> [storage\_account\_name](#input\_storage\_account\_name) | The name of the Storage Account where the network traffic logs will be stored. | `string` | n/a | yes |

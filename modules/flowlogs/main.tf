@@ -56,6 +56,7 @@ data "azurerm_storage_account" "this" {
 }
 
 resource "azurerm_service_plan" "this" {
+  count               = var.service_plan_id == null ? 1 : 0
   name                = var.service_plan_name
   location            = local.resource_group.location
   resource_group_name = local.resource_group.name
@@ -65,17 +66,23 @@ resource "azurerm_service_plan" "this" {
   tags = merge(var.tags, var.service_plan_tags)
 }
 
+moved {
+  from = azurerm_service_plan.this
+  to   = azurerm_service_plan.this[0]
+}
+
 resource "azurerm_linux_function_app" "this" {
   name                          = var.function_name
   location                      = local.resource_group.location
   resource_group_name           = local.resource_group.name
-  service_plan_id               = azurerm_service_plan.this.id
+  service_plan_id               = var.service_plan_id == null ? azurerm_service_plan.this[0].id : var.service_plan_id
   storage_account_name          = data.azurerm_storage_account.this.name
   storage_account_access_key    = data.azurerm_storage_account.this.primary_access_key
   public_network_access_enabled = var.function_public_access_enabled
   https_only                    = var.function_https_only
   client_certificate_mode       = var.function_certificate_mode
   client_certificate_enabled    = var.function_certificate_enabled
+  virtual_network_subnet_id     = var.function_virtual_network_subnet_id
   app_settings = {
     API_TOKEN                 = data.streamsec_azure_tenant.this.account_token
     API_URL                   = data.streamsec_host.this.url
