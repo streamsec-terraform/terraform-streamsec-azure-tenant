@@ -97,6 +97,11 @@ variable "eventhub_partition_count" {
   default     = 4
 }
 
+variable "eventhub_consumer_group_name" {
+  description = "The name of the Event Hub consumer group to create."
+  type        = string
+  default     = "$Default"
+}
 variable "eventhub_message_retention" {
   description = "The number of days to retain messages in the Event Hub."
   type        = number
@@ -246,7 +251,7 @@ variable "function_bucket_name" {
 variable "function_zip_filename" {
   description = "The name of the zip file to store the Function App code."
   type        = string
-  default     = "LightlyticsEventhubtrigger.zip"
+  default     = "StreamSecurityEventHubTrigger.zip"
 }
 
 variable "function_ftps_state" {
