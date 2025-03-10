@@ -27,6 +27,7 @@ No modules.
 | [azurerm_application_insights.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_insights) | resource |
 | [azurerm_eventhub.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/eventhub) | resource |
 | [azurerm_eventhub_authorization_rule.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/eventhub_authorization_rule) | resource |
+| [azurerm_eventhub_consumer_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/eventhub_consumer_group) | resource |
 | [azurerm_eventhub_namespace.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/eventhub_namespace) | resource |
 | [azurerm_eventhub_namespace_authorization_rule.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/eventhub_namespace_authorization_rule) | resource |
 | [azurerm_linux_function_app.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_function_app) | resource |
@@ -61,6 +62,7 @@ No modules.
 | <a name="input_create_subscription_diagnostic_setting"></a> [create\_subscription\_diagnostic\_setting](#input\_create\_subscription\_diagnostic\_setting) | Whether to create a new Subscription Diagnostic Setting for the Stream Security Azure resources. | `bool` | `true` | no |
 | <a name="input_diagnostic_setting_name"></a> [diagnostic\_setting\_name](#input\_diagnostic\_setting\_name) | The name of the Diagnostic Setting to create. | `string` | `"ds-streamsec-rte"` | no |
 | <a name="input_eventhub_authorization_rule_name"></a> [eventhub\_authorization\_rule\_name](#input\_eventhub\_authorization\_rule\_name) | The name of the Event Hub authorization rule to create. | `string` | `"eventhub-ar-streamsec-rte"` | no |
+| <a name="input_eventhub_consumer_group_name"></a> [eventhub\_consumer\_group\_name](#input\_eventhub\_consumer\_group\_name) | The name of the Event Hub consumer group to create. | `string` | `"$Default"` | no |
 | <a name="input_eventhub_message_retention"></a> [eventhub\_message\_retention](#input\_eventhub\_message\_retention) | The number of days to retain messages in the Event Hub. | `number` | `1` | no |
 | <a name="input_eventhub_name"></a> [eventhub\_name](#input\_eventhub\_name) | The name of the Event Hub to create. | `string` | `"eventhub-streamsec-rte"` | no |
 | <a name="input_eventhub_namespace_authorization_rule_name"></a> [eventhub\_namespace\_authorization\_rule\_name](#input\_eventhub\_namespace\_authorization\_rule\_name) | The name of the Event Hub Namespace authorization rule to create. | `string` | `"eventhubns-ar-streamsec-rte"` | no |
@@ -83,7 +85,7 @@ No modules.
 | <a name="input_function_public_access_enabled"></a> [function\_public\_access\_enabled](#input\_function\_public\_access\_enabled) | Whether to enable public access to the Function App. | `bool` | `false` | no |
 | <a name="input_function_tags"></a> [function\_tags](#input\_function\_tags) | The tags to apply to the Function App. | `map(string)` | `{}` | no |
 | <a name="input_function_virtual_network_subnet_id"></a> [function\_virtual\_network\_subnet\_id](#input\_function\_virtual\_network\_subnet\_id) | The ID of the subnet to connect the Function App to. | `string` | `null` | no |
-| <a name="input_function_zip_filename"></a> [function\_zip\_filename](#input\_function\_zip\_filename) | The name of the zip file to store the Function App code. | `string` | `"LightlyticsEventhubtrigger.zip"` | no |
+| <a name="input_function_zip_filename"></a> [function\_zip\_filename](#input\_function\_zip\_filename) | The name of the zip file to store the Function App code. | `string` | `"StreamSecurityEventHubTrigger.zip"` | no |
 | <a name="input_location"></a> [location](#input\_location) | The location to create the Stream Security Azure resources in. | `string` | `"East US"` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the resource group to create the Stream Security Azure resources in. | `string` | `"rg-streamsec-rte"` | no |
 | <a name="input_resource_group_tags"></a> [resource\_group\_tags](#input\_resource\_group\_tags) | The tags to apply to the resource group. | `map(string)` | `{}` | no |
