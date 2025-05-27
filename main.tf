@@ -19,6 +19,7 @@ locals {
     "IdentityRiskyUser.Read.All",
     "SecurityEvents.Read.All",
     "SecurityIncident.Read.All",
+    "AuditLog.Read.All"
   ]
   delegated_permissions = [
     "Subscription.Read.All",
@@ -31,6 +32,7 @@ locals {
     "RoleManagementPolicy.Read.Directory",
     "User.Read.All",
     "UserAuthenticationMethod.Read.All",
+    "AuditLog.Read.All"
   ]
 }
 
