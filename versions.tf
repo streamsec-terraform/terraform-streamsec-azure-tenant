@@ -4,7 +4,7 @@ terraform {
   required_providers {
     streamsec = {
       source  = "streamsec-terraform/streamsec"
-      version = ">= 1.8"
+      version = ">= 1.13.2"
     }
     azuread = {
       source  = "hashicorp/azuread"
