@@ -26,7 +26,7 @@ resource "random_string" "suffix" {
 
 module "tenant" {
   source        = "../../"
-  display_name  = "test"
+  display_name  = var.display_name # This name will appear in the Stream Security platform to identify this tenant
   subscriptions = var.subscriptions
 }
 
@@ -38,8 +38,9 @@ module "tenant" {
 # in addition to data plane logs. Secondary regions collect data plane only.
 #
 # Resource-level diagnostic settings (Key Vault, Storage Account) can be
-# enforced automatically by setting enable_data_plane_logging = true, or
-# configured manually per: https://docs.streamsec.io/docs/integrations-cloud-azure-diag
+# enforced automatically via the diagnostic-policy-kv and diagnostic-policy-sa
+# modules below, or configured manually per:
+# https://docs.streamsec.io/docs/integrations-cloud-azure-diag
 ################################################################################
 
 module "real_time" {
@@ -98,19 +99,41 @@ module "flowlogs" {
 }
 
 ################################################################################
-# Diagnostic Policy (per region)
+# Key Vault Diagnostic Policy (per region)
 #
-# When enabled, assigns Azure built-in policies to enforce data-plane
-# diagnostic settings (Key Vault AuditEvent, Storage Account blob logs) on
-# all resources, streaming to the regional Event Hub.
+# Uses built-in Azure policy to enforce AuditEvent logging on all Key Vaults,
+# streaming to the regional Event Hub.
 ################################################################################
 
-module "diagnostic_policy" {
-  source   = "../../modules/diagnostic-policy"
-  for_each = var.enable_data_plane_logging ? var.regions : {}
+module "diagnostic_policy_kv" {
+  source   = "../../modules/diagnostic-policy-kv"
+  for_each = var.enable_kv_data_plane_logging ? var.regions : {}
 
   subscriptions                            = var.subscriptions
   location                                 = each.value.location
+  region_key                               = each.key
+  eventhub_namespace_id                    = module.real_time[each.key].eventhub_namespace_id
+  eventhub_namespace_authorization_rule_id = module.real_time[each.key].eventhub_namespace_authorization_rule_id
+
+  depends_on = [module.real_time]
+}
+
+################################################################################
+# Storage Account Blob Diagnostic Policy (per region)
+#
+# Uses custom Azure policy to enforce StorageRead, StorageWrite, StorageDelete
+# logging on all Storage Account blob services, streaming to the regional
+# Event Hub.
+################################################################################
+
+module "diagnostic_policy_sa" {
+  source   = "../../modules/diagnostic-policy-sa"
+  for_each = var.enable_sa_data_plane_logging ? var.regions : {}
+
+  subscriptions                            = var.subscriptions
+  location                                 = each.value.location
+  region_key                               = each.key
+  eventhub_namespace_id                    = module.real_time[each.key].eventhub_namespace_id
   eventhub_namespace_authorization_rule_id = module.real_time[each.key].eventhub_namespace_authorization_rule_id
   eventhub_name                            = module.real_time[each.key].eventhub_name
 

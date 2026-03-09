@@ -1,0 +1,52 @@
+# Display name for this tenant in the Stream Security platform
+display_name = "My Entra ID Tenant"
+
+subscriptions = [
+  "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  # "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy",  # add more subscriptions as needed
+]
+
+primary_region = "france"
+
+regions = {
+  # Primary region — collects AAD tenant logs + subscription activity logs + data plane logs
+  france = {
+    location = "France Central"
+  }
+
+  # Secondary regions — collect data plane logs only (EventHub + Function App created automatically)
+  westeu = {
+    location = "West Europe"
+  }
+  eastus = {
+    location = "East US"
+  }
+  northeu = {
+    location = "North Europe"
+  }
+
+  # Example: secondary region using customer's existing Event Hub
+  # uksouth = {
+  #   location = "UK South"
+  #   existing_eventhub = {
+  #     eventhub_namespace_name                    = "my-existing-namespace"
+  #     eventhub_namespace_resource_group_name     = "my-existing-rg"
+  #     eventhub_name                              = "my-existing-eventhub"
+  #     eventhub_namespace_authorization_rule_name = "RootManageSharedAccessKey"
+  #   }
+  # }
+}
+
+# Enable Key Vault data plane logging via Azure Policy
+enable_kv_data_plane_logging = true
+
+# Enable Storage Account blob data plane logging via Azure Policy (custom policy)
+enable_sa_data_plane_logging = true
+
+# Optional: flow log storage accounts per region
+# flowlog_storage_accounts = {
+#   france = {
+#     storage_account_name                = "myflowlogssa"
+#     storage_account_resource_group_name = "my-flowlogs-rg"
+#   }
+# }
