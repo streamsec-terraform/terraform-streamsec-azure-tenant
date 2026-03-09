@@ -1,0 +1,190 @@
+{
+  "mode": "All",
+  "parameters": {
+    "effect": {
+      "type": "String",
+      "defaultValue": "DeployIfNotExists",
+      "allowedValues": [
+        "DeployIfNotExists",
+        "Disabled"
+      ],
+      "metadata": {
+        "displayName": "Effect",
+        "description": "Enable or disable the execution of the policy"
+      }
+    },
+    "eventHubRuleId": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Event Hub Authorization Rule Id",
+        "description": "The Event Hub namespace authorization rule Id. e.g. /subscriptions/{subscription Id}/resourceGroups/{resource group}/providers/Microsoft.EventHub/namespaces/{Event Hub namespace}/authorizationrules/{authorization rule}",
+        "assignPermissions": true,
+        "strongType": "Microsoft.EventHub/Namespaces/AuthorizationRules"
+      }
+    },
+    "eventHubLocation": {
+      "type": "String",
+      "defaultValue": "",
+      "metadata": {
+        "displayName": "Event Hub Location",
+        "description": "The location the Event Hub resides in. Only Storage Accounts in this location will be linked to this Event Hub.",
+        "strongType": "location"
+      }
+    },
+    "profileName": {
+      "type": "String",
+      "defaultValue": "setbypolicy",
+      "metadata": {
+        "displayName": "Profile name",
+        "description": "The diagnostic settings profile name"
+      }
+    },
+    "storageReadEnabled": {
+      "type": "String",
+      "defaultValue": "True",
+      "allowedValues": ["True", "False"],
+      "metadata": {
+        "displayName": "Enable StorageRead logs",
+        "description": "Whether to enable StorageRead logs"
+      }
+    },
+    "storageWriteEnabled": {
+      "type": "String",
+      "defaultValue": "True",
+      "allowedValues": ["True", "False"],
+      "metadata": {
+        "displayName": "Enable StorageWrite logs",
+        "description": "Whether to enable StorageWrite logs"
+      }
+    },
+    "storageDeleteEnabled": {
+      "type": "String",
+      "defaultValue": "True",
+      "allowedValues": ["True", "False"],
+      "metadata": {
+        "displayName": "Enable StorageDelete logs",
+        "description": "Whether to enable StorageDelete logs"
+      }
+    }
+  },
+  "policyRule": {
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "equals": "Microsoft.Storage/storageAccounts/blobServices"
+        },
+        {
+          "anyOf": [
+            {
+              "value": "[parameters('eventHubLocation')]",
+              "equals": ""
+            },
+            {
+              "field": "location",
+              "equals": "[parameters('eventHubLocation')]"
+            }
+          ]
+        }
+      ]
+    },
+    "then": {
+      "effect": "[parameters('effect')]",
+      "details": {
+        "type": "Microsoft.Insights/diagnosticSettings",
+        "name": "[parameters('profileName')]",
+        "existenceCondition": {
+          "allOf": [
+            {
+              "count": {
+                "field": "Microsoft.Insights/diagnosticSettings/logs[*]",
+                "where": {
+                  "field": "Microsoft.Insights/diagnosticSettings/logs[*].enabled",
+                  "equals": "True"
+                }
+              },
+              "greaterOrEquals": 1
+            }
+          ]
+        },
+        "roleDefinitionIds": [
+          "/providers/microsoft.authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa",
+          "/providers/microsoft.authorization/roleDefinitions/f526a384-b230-433a-b45c-95f59c4a2dec"
+        ],
+        "deployment": {
+          "properties": {
+            "mode": "incremental",
+            "parameters": {
+              "resourceName": {
+                "value": "[field('fullName')]"
+              },
+              "location": {
+                "value": "[field('location')]"
+              },
+              "eventHubRuleId": {
+                "value": "[parameters('eventHubRuleId')]"
+              },
+              "profileName": {
+                "value": "[parameters('profileName')]"
+              },
+              "storageReadEnabled": {
+                "value": "[parameters('storageReadEnabled')]"
+              },
+              "storageWriteEnabled": {
+                "value": "[parameters('storageWriteEnabled')]"
+              },
+              "storageDeleteEnabled": {
+                "value": "[parameters('storageDeleteEnabled')]"
+              }
+            },
+            "template": {
+              "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "parameters": {
+                "resourceName": { "type": "string" },
+                "location": { "type": "string" },
+                "eventHubRuleId": { "type": "string" },
+                "profileName": { "type": "string" },
+                "storageReadEnabled": { "type": "string" },
+                "storageWriteEnabled": { "type": "string" },
+                "storageDeleteEnabled": { "type": "string" }
+              },
+              "resources": [
+                {
+                  "type": "Microsoft.Storage/storageAccounts/blobServices/providers/diagnosticSettings",
+                  "apiVersion": "2021-05-01-preview",
+                  "name": "[concat(parameters('resourceName'), '/Microsoft.Insights/', parameters('profileName'))]",
+                  "location": "[parameters('location')]",
+                  "dependsOn": [],
+                  "properties": {
+                    "eventHubAuthorizationRuleId": "[parameters('eventHubRuleId')]",
+                    "logs": [
+                      {
+                        "category": "StorageRead",
+                        "enabled": "[parameters('storageReadEnabled')]"
+                      },
+                      {
+                        "category": "StorageWrite",
+                        "enabled": "[parameters('storageWriteEnabled')]"
+                      },
+                      {
+                        "category": "StorageDelete",
+                        "enabled": "[parameters('storageDeleteEnabled')]"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "outputs": {
+                "policy": {
+                  "type": "string",
+                  "value": "[concat('Enabled blob diagnostic settings for ', parameters('resourceName'))]"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

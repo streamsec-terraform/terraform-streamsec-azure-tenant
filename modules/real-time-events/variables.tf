@@ -63,6 +63,18 @@ variable "eventhub_namespace_sku" {
   default     = "Standard"
 }
 
+variable "eventhub_namespace_auto_inflate_enabled" {
+  description = "Whether Auto Inflate is enabled for the EventHub Namespace."
+  type        = bool
+  default     = true
+}
+
+variable "eventhub_namespace_maximum_throughput_units" {
+  description = "The maximum number of throughput units when Auto Inflate is enabled. Valid values are between 1 and 40."
+  type        = number
+  default     = 40
+}
+
 variable "eventhub_namespace_authorization_rule_name" {
   description = "The name of the Event Hub Namespace authorization rule to create."
   type        = string
