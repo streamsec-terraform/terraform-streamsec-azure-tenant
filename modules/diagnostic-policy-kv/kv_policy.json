@@ -22,20 +22,20 @@
         "strongType": "Microsoft.EventHub/Namespaces/AuthorizationRules"
       }
     },
-    "eventHubLocation": {
-      "type": "String",
-      "defaultValue": "",
-      "metadata": {
-        "displayName": "Event Hub Location",
-        "description": "The location the Event Hub resides in. Only Storage Accounts in this location will be linked to this Event Hub.",
-        "strongType": "location"
-      }
-    },
     "eventHubName": {
       "type": "String",
       "metadata": {
         "displayName": "Event Hub Name",
         "description": "The name of the Event Hub to send diagnostic logs to"
+      }
+    },
+    "eventHubLocation": {
+      "type": "String",
+      "defaultValue": "",
+      "metadata": {
+        "displayName": "Event Hub Location",
+        "description": "The location the Event Hub resides in. Only Key Vaults in this location will be linked to this Event Hub.",
+        "strongType": "location"
       }
     },
     "profileName": {
@@ -46,31 +46,22 @@
         "description": "The diagnostic settings profile name"
       }
     },
-    "storageReadEnabled": {
+    "logsEnabled": {
       "type": "String",
       "defaultValue": "True",
       "allowedValues": ["True", "False"],
       "metadata": {
-        "displayName": "Enable StorageRead logs",
-        "description": "Whether to enable StorageRead logs"
+        "displayName": "Enable logs",
+        "description": "Whether to enable logs stream to the Event Hub - True or False"
       }
     },
-    "storageWriteEnabled": {
+    "metricsEnabled": {
       "type": "String",
-      "defaultValue": "True",
+      "defaultValue": "False",
       "allowedValues": ["True", "False"],
       "metadata": {
-        "displayName": "Enable StorageWrite logs",
-        "description": "Whether to enable StorageWrite logs"
-      }
-    },
-    "storageDeleteEnabled": {
-      "type": "String",
-      "defaultValue": "True",
-      "allowedValues": ["True", "False"],
-      "metadata": {
-        "displayName": "Enable StorageDelete logs",
-        "description": "Whether to enable StorageDelete logs"
+        "displayName": "Enable metrics",
+        "description": "Whether to enable metrics stream to the Event Hub - True or False"
       }
     }
   },
@@ -79,7 +70,7 @@
       "allOf": [
         {
           "field": "type",
-          "equals": "Microsoft.Storage/storageAccounts/blobServices"
+          "equals": "Microsoft.KeyVault/vaults"
         },
         {
           "anyOf": [
@@ -107,7 +98,17 @@
                 "field": "Microsoft.Insights/diagnosticSettings/logs[*]",
                 "where": {
                   "field": "Microsoft.Insights/diagnosticSettings/logs[*].enabled",
-                  "equals": "True"
+                  "equals": "[parameters('logsEnabled')]"
+                }
+              },
+              "greaterOrEquals": 1
+            },
+            {
+              "count": {
+                "field": "Microsoft.Insights/diagnosticSettings/metrics[*]",
+                "where": {
+                  "field": "Microsoft.Insights/diagnosticSettings/metrics[*].enabled",
+                  "equals": "[parameters('metricsEnabled')]"
                 }
               },
               "greaterOrEquals": 1
@@ -122,8 +123,8 @@
           "properties": {
             "mode": "incremental",
             "parameters": {
-              "resourceName": {
-                "value": "[field('fullName')]"
+              "vaultName": {
+                "value": "[field('name')]"
               },
               "location": {
                 "value": "[field('location')]"
@@ -137,34 +138,30 @@
               "profileName": {
                 "value": "[parameters('profileName')]"
               },
-              "storageReadEnabled": {
-                "value": "[parameters('storageReadEnabled')]"
+              "logsEnabled": {
+                "value": "[parameters('logsEnabled')]"
               },
-              "storageWriteEnabled": {
-                "value": "[parameters('storageWriteEnabled')]"
-              },
-              "storageDeleteEnabled": {
-                "value": "[parameters('storageDeleteEnabled')]"
+              "metricsEnabled": {
+                "value": "[parameters('metricsEnabled')]"
               }
             },
             "template": {
               "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
               "contentVersion": "1.0.0.0",
               "parameters": {
-                "resourceName": { "type": "string" },
+                "vaultName": { "type": "string" },
                 "location": { "type": "string" },
                 "eventHubRuleId": { "type": "string" },
                 "eventHubName": { "type": "string" },
                 "profileName": { "type": "string" },
-                "storageReadEnabled": { "type": "string" },
-                "storageWriteEnabled": { "type": "string" },
-                "storageDeleteEnabled": { "type": "string" }
+                "logsEnabled": { "type": "string" },
+                "metricsEnabled": { "type": "string" }
               },
               "resources": [
                 {
-                  "type": "Microsoft.Storage/storageAccounts/blobServices/providers/diagnosticSettings",
+                  "type": "Microsoft.KeyVault/vaults/providers/diagnosticSettings",
                   "apiVersion": "2021-05-01-preview",
-                  "name": "[concat(parameters('resourceName'), '/Microsoft.Insights/', parameters('profileName'))]",
+                  "name": "[concat(parameters('vaultName'), '/Microsoft.Insights/', parameters('profileName'))]",
                   "location": "[parameters('location')]",
                   "dependsOn": [],
                   "properties": {
@@ -172,16 +169,22 @@
                     "eventHubName": "[parameters('eventHubName')]",
                     "logs": [
                       {
-                        "category": "StorageRead",
-                        "enabled": "[parameters('storageReadEnabled')]"
+                        "category": "AuditEvent",
+                        "enabled": "[parameters('logsEnabled')]"
                       },
                       {
-                        "category": "StorageWrite",
-                        "enabled": "[parameters('storageWriteEnabled')]"
-                      },
+                        "category": "AzurePolicyEvaluationDetails",
+                        "enabled": "[parameters('logsEnabled')]"
+                      }
+                    ],
+                    "metrics": [
                       {
-                        "category": "StorageDelete",
-                        "enabled": "[parameters('storageDeleteEnabled')]"
+                        "category": "AllMetrics",
+                        "enabled": "[parameters('metricsEnabled')]",
+                        "retentionPolicy": {
+                          "days": 0,
+                          "enabled": false
+                        }
                       }
                     ]
                   }
@@ -190,7 +193,7 @@
               "outputs": {
                 "policy": {
                   "type": "string",
-                  "value": "[concat('Enabled blob diagnostic settings for ', parameters('resourceName'))]"
+                  "value": "[concat('Enabled diagnostic settings for ', parameters('vaultName'))]"
                 }
               }
             }

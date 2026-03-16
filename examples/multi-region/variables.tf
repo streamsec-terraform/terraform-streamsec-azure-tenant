@@ -46,3 +46,9 @@ variable "enable_sa_data_plane_logging" {
   type        = bool
   default     = false
 }
+
+variable "enable_sa_files_data_plane_logging" {
+  description = "Enable Azure Policy to enforce Storage Account file service diagnostic settings (StorageRead, StorageWrite, StorageDelete) on all Storage Accounts, streaming to the regional Event Hub."
+  type        = bool
+  default     = false
+}

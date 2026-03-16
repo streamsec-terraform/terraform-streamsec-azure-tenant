@@ -8,13 +8,18 @@ variable "location" {
   type        = string
 }
 
-variable "eventhub_namespace_id" {
-  description = "The Event Hub namespace ID. Used to scope EventHub Data Sender role for cross-subscription scenarios."
+variable "eventhub_namespace_authorization_rule_id" {
+  description = "The Event Hub namespace authorization rule ID for diagnostic settings."
   type        = string
 }
 
-variable "eventhub_namespace_authorization_rule_id" {
-  description = "The Event Hub namespace authorization rule ID for diagnostic settings."
+variable "eventhub_name" {
+  description = "The name of the Event Hub to send diagnostic logs to."
+  type        = string
+}
+
+variable "policy_identity_id" {
+  description = "The ID of the User Assigned Managed Identity for the policy assignment."
   type        = string
 }
 
