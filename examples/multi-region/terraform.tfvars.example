@@ -43,6 +43,9 @@ enable_kv_data_plane_logging = true
 # Enable Storage Account blob data plane logging via Azure Policy (custom policy)
 enable_sa_data_plane_logging = true
 
+# Enable Storage Account file service data plane logging via Azure Policy (custom policy)
+enable_sa_files_data_plane_logging = false
+
 # Optional: flow log storage accounts per region
 # flowlog_storage_accounts = {
 #   france = {

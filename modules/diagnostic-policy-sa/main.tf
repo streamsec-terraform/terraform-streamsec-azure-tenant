@@ -38,6 +38,9 @@ resource "azurerm_subscription_policy_assignment" "sa_blob_diag" {
     eventHubRuleId = {
       value = var.eventhub_namespace_authorization_rule_id
     }
+    eventHubName = {
+      value = var.eventhub_name
+    }
     eventHubLocation = {
       value = var.location
     }
@@ -47,22 +50,16 @@ resource "azurerm_subscription_policy_assignment" "sa_blob_diag" {
   })
 
   identity {
-    type = "SystemAssigned"
+    type         = "UserAssigned"
+    identity_ids = [var.policy_identity_id]
   }
 }
 
-resource "azurerm_role_assignment" "sa_eventhub_sender" {
+resource "azurerm_subscription_policy_remediation" "sa_blob_diag" {
   for_each = local.subscriptions
 
-  scope                = var.eventhub_namespace_id
-  role_definition_name = "Azure Event Hubs Data Sender"
-  principal_id         = azurerm_subscription_policy_assignment.sa_blob_diag[each.key].identity[0].principal_id
-}
-
-resource "azurerm_role_assignment" "sa_monitoring_contributor" {
-  for_each = local.subscriptions
-
-  scope                = each.value
-  role_definition_name = "Monitoring Contributor"
-  principal_id         = azurerm_subscription_policy_assignment.sa_blob_diag[each.key].identity[0].principal_id
+  name                    = "remediate-sa-diag-${var.region_key}"
+  subscription_id         = each.value
+  policy_assignment_id    = azurerm_subscription_policy_assignment.sa_blob_diag[each.key].id
+  resource_discovery_mode = "ReEvaluateCompliance"
 }

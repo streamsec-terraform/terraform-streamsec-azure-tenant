@@ -125,6 +125,17 @@ resource "azurerm_role_assignment" "this" {
   principal_id         = var.create_app_reg ? azuread_service_principal.this[0].object_id : data.azuread_application.this[0].object_id
 }
 
+# allow reading Function App environment variables (app settings)
+resource "azurerm_role_assignment" "function_app_appsettings_reader" {
+  for_each = {
+    for subscription_id in var.subscriptions :
+    subscription_id => "/subscriptions/${subscription_id}"
+  }
+  scope                = each.value
+  role_definition_name = "Function App AppSettings Reader"
+  principal_id         = var.create_app_reg ? azuread_service_principal.this[0].object_id : data.azuread_application.this[0].object_id
+}
+
 resource "time_rotating" "this" {
   count         = var.create_app_reg ? 1 : 0
   rotation_days = var.rotation_days

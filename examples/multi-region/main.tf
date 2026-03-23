@@ -99,9 +99,43 @@ module "flowlogs" {
 }
 
 ################################################################################
+# Diagnostic Policy Identity — one UAMI per region, shared across all policies
+################################################################################
+
+locals {
+  any_policy_enabled = var.enable_kv_data_plane_logging || var.enable_sa_data_plane_logging || var.enable_sa_files_data_plane_logging
+}
+
+resource "azurerm_user_assigned_identity" "policy" {
+  count = local.any_policy_enabled ? 1 : 0
+
+  name                = "id-streamsec-policy"
+  location            = var.regions[var.primary_region].location
+  resource_group_name = module.real_time[var.primary_region].resource_group_name
+}
+
+resource "azurerm_role_assignment" "policy_monitoring_contributor" {
+  for_each = local.any_policy_enabled ? {
+    for sub in var.subscriptions : sub => sub
+  } : {}
+
+  scope                = "/subscriptions/${each.value}"
+  role_definition_name = "Monitoring Contributor"
+  principal_id         = azurerm_user_assigned_identity.policy[0].principal_id
+}
+
+resource "azurerm_role_assignment" "policy_eventhub_contributor" {
+  for_each = local.any_policy_enabled ? var.regions : {}
+
+  scope                = module.real_time[each.key].eventhub_namespace_id
+  role_definition_name = "Contributor"
+  principal_id         = azurerm_user_assigned_identity.policy[0].principal_id
+}
+
+################################################################################
 # Key Vault Diagnostic Policy (per region)
 #
-# Uses built-in Azure policy to enforce AuditEvent logging on all Key Vaults,
+# Custom Azure policy to enforce AuditEvent logging on all Key Vaults,
 # streaming to the regional Event Hub.
 ################################################################################
 
@@ -112,10 +146,11 @@ module "diagnostic_policy_kv" {
   subscriptions                            = var.subscriptions
   location                                 = each.value.location
   region_key                               = each.key
-  eventhub_namespace_id                    = module.real_time[each.key].eventhub_namespace_id
   eventhub_namespace_authorization_rule_id = module.real_time[each.key].eventhub_namespace_authorization_rule_id
+  eventhub_name                            = module.real_time[each.key].eventhub_name
+  policy_identity_id                       = azurerm_user_assigned_identity.policy[0].id
 
-  depends_on = [module.real_time]
+  depends_on = [module.real_time, azurerm_role_assignment.policy_monitoring_contributor, azurerm_role_assignment.policy_eventhub_contributor]
 }
 
 ################################################################################
@@ -133,9 +168,31 @@ module "diagnostic_policy_sa" {
   subscriptions                            = var.subscriptions
   location                                 = each.value.location
   region_key                               = each.key
-  eventhub_namespace_id                    = module.real_time[each.key].eventhub_namespace_id
   eventhub_namespace_authorization_rule_id = module.real_time[each.key].eventhub_namespace_authorization_rule_id
   eventhub_name                            = module.real_time[each.key].eventhub_name
+  policy_identity_id                       = azurerm_user_assigned_identity.policy[0].id
 
-  depends_on = [module.real_time]
+  depends_on = [module.real_time, azurerm_role_assignment.policy_monitoring_contributor, azurerm_role_assignment.policy_eventhub_contributor]
+}
+
+################################################################################
+# Storage Account File Services Diagnostic Policy (per region)
+#
+# Uses custom Azure policy to enforce StorageRead, StorageWrite, StorageDelete
+# logging on all Storage Account file services, streaming to the regional
+# Event Hub.
+################################################################################
+
+module "diagnostic_policy_sa_files" {
+  source   = "../../modules/diagnostic-policy-sa-files"
+  for_each = var.enable_sa_files_data_plane_logging ? var.regions : {}
+
+  subscriptions                            = var.subscriptions
+  location                                 = each.value.location
+  region_key                               = each.key
+  eventhub_namespace_authorization_rule_id = module.real_time[each.key].eventhub_namespace_authorization_rule_id
+  eventhub_name                            = module.real_time[each.key].eventhub_name
+  policy_identity_id                       = azurerm_user_assigned_identity.policy[0].id
+
+  depends_on = [module.real_time, azurerm_role_assignment.policy_monitoring_contributor, azurerm_role_assignment.policy_eventhub_contributor]
 }
