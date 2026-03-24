@@ -127,7 +127,7 @@ resource "azurerm_role_assignment" "this" {
 
 # custom role to allow reading Function App environment variables (app settings)
 resource "azurerm_role_definition" "function_app_appsettings_reader" {
-  name        = "Function App AppSettings Reader"
+  name        = "Function App Settings Reader - ${var.app_reg_display_name}"
   description = "Can read Function App application settings (environment variables)"
   scope       = "/subscriptions/${var.subscriptions[0]}"
 
