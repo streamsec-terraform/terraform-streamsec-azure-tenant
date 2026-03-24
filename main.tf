@@ -125,15 +125,32 @@ resource "azurerm_role_assignment" "this" {
   principal_id         = var.create_app_reg ? azuread_service_principal.this[0].object_id : data.azuread_application.this[0].object_id
 }
 
-# allow reading Function App environment variables (app settings)
+# custom role to allow reading Function App environment variables (app settings)
+resource "azurerm_role_definition" "function_app_appsettings_reader" {
+  name        = "Function App AppSettings Reader"
+  description = "Can read Function App application settings (environment variables)"
+  scope       = "/subscriptions/${var.subscriptions[0]}"
+
+  permissions {
+    actions = [
+      "Microsoft.Web/sites/config/list/Action",
+    ]
+  }
+
+  assignable_scopes = [
+    for subscription_id in var.subscriptions :
+    "/subscriptions/${subscription_id}"
+  ]
+}
+
 resource "azurerm_role_assignment" "function_app_appsettings_reader" {
   for_each = {
     for subscription_id in var.subscriptions :
     subscription_id => "/subscriptions/${subscription_id}"
   }
-  scope                = each.value
-  role_definition_name = "Function App AppSettings Reader"
-  principal_id         = var.create_app_reg ? azuread_service_principal.this[0].object_id : data.azuread_application.this[0].object_id
+  scope              = each.value
+  role_definition_id = azurerm_role_definition.function_app_appsettings_reader.role_definition_resource_id
+  principal_id       = var.create_app_reg ? azuread_service_principal.this[0].object_id : data.azuread_application.this[0].object_id
 }
 
 resource "time_rotating" "this" {
