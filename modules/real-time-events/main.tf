@@ -39,8 +39,10 @@ resource "azurerm_eventhub_namespace" "this" {
   name                = var.eventhub_namespace_name
   location            = local.resource_group.location
   resource_group_name = local.resource_group.name
-  sku                 = var.eventhub_namespace_sku
-  tags                = merge(var.tags, var.eventhub_namespace_tags)
+  sku                          = var.eventhub_namespace_sku
+  auto_inflate_enabled         = var.eventhub_namespace_auto_inflate_enabled
+  maximum_throughput_units      = var.eventhub_namespace_maximum_throughput_units
+  tags                         = merge(var.tags, var.eventhub_namespace_tags)
 }
 
 moved {
@@ -241,9 +243,19 @@ resource "azurerm_monitor_aad_diagnostic_setting" "this" {
   name                           = var.diagnostic_setting_name
   eventhub_name                  = local.eventhub.name
   eventhub_authorization_rule_id = local.eventhub_namespace_authorization_rule.id
-  enabled_log {
-    category = "AuditLogs"
-  }
+  enabled_log { category = "AuditLogs" }
+  enabled_log { category = "SignInLogs" }
+  enabled_log { category = "NonInteractiveUserSignInLogs" }
+  enabled_log { category = "ServicePrincipalSignInLogs" }
+  enabled_log { category = "ManagedIdentitySignInLogs" }
+  enabled_log { category = "ProvisioningLogs" }
+  enabled_log { category = "ADFSSignInLogs" }
+  enabled_log { category = "RiskyUsers" }
+  enabled_log { category = "UserRiskEvents" }
+  enabled_log { category = "NetworkAccessTrafficLogs" }
+  enabled_log { category = "RiskyServicePrincipals" }
+  enabled_log { category = "ServicePrincipalRiskEvents" }
+  enabled_log { category = "EnrichedOffice365AuditLogs" }
 }
 
 moved {
@@ -262,11 +274,12 @@ resource "azurerm_monitor_diagnostic_setting" "this" {
   eventhub_name                  = local.eventhub.name
   eventhub_authorization_rule_id = local.eventhub_namespace_authorization_rule.id
 
-  enabled_log {
-    category = "Administrative"
-  }
-
-  enabled_log {
-    category = "Autoscale"
-  }
+  enabled_log { category = "Administrative" }
+  enabled_log { category = "Autoscale" }
+  enabled_log { category = "Security" }
+  enabled_log { category = "ServiceHealth" }
+  enabled_log { category = "Alert" }
+  enabled_log { category = "Recommendation" }
+  enabled_log { category = "Policy" }
+  enabled_log { category = "ResourceHealth" }
 }
