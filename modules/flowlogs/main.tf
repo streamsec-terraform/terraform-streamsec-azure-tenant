@@ -86,7 +86,7 @@ resource "azurerm_linux_function_app" "this" {
   app_settings = {
     API_TOKEN                 = data.streamsec_azure_tenant.this.account_token
     API_URL                   = data.streamsec_host.this.url
-    WEBSITE_RUN_FROM_PACKAGE  = "https://github.com/lightlytics/azure-log-collectors/releases/download/1.0.0/azure-log-collectors.zip"
+    WEBSITE_RUN_FROM_PACKAGE  = "https://github.com/lightlytics/azure-logs-collector/releases/download/1.0.4/network-traffic-collector.zip"
     NETWORK_TRAFFIC_CONTAINER = var.network_traffic_container_name
   }
 
@@ -94,7 +94,7 @@ resource "azurerm_linux_function_app" "this" {
     http2_enabled = var.function_http2_enabled
     ftps_state    = var.function_ftps_state
     application_stack {
-      node_version = "14"
+      node_version = "20"
     }
     application_insights_key = var.create_application_insights ? azurerm_application_insights.this[0].instrumentation_key : data.azurerm_application_insights.this[0].instrumentation_key
   }
