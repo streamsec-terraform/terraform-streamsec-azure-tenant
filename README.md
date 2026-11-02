@@ -1,6 +1,8 @@
 # StreamSec - Azure Account Integration using Terraform
 Terraform module for azure tenant
 
+To scan the tenant's VMs and workloads for vulnerabilities without agents, add [`modules/volume-scanner`](modules/volume-scanner) once per subscription, with this module's `account_id` output. [`examples/basic`](examples/basic) shows both.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -61,5 +63,7 @@ No modules.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_account_id"></a> [account\_id](#output\_account\_id) | Stream Security id of the Azure tenant, not the Azure tenant id: the account\_id of modules/volume-scanner |
 <!-- END_TF_DOCS -->
