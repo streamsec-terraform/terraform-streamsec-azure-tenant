@@ -7,8 +7,7 @@ terraform {
       version = ">= 1.15.0" # streamsec_azure_volume_scanner and its acknowledgement
     }
     azurerm = {
-      source = "hashicorp/azurerm"
-      # logs_destination on the Container Apps environment: added in 4.17, required from 5.0.
+      source  = "hashicorp/azurerm"
       version = ">= 4.17"
     }
     azapi = {

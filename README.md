@@ -65,5 +65,5 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_account_id"></a> [account\_id](#output\_account\_id) | Stream Security id of the Azure tenant, not the Azure tenant id: the account\_id of modules/volume-scanner |
+| <a name="output_account_id"></a> [account\_id](#output\_account\_id) | The Stream Security ID of the Azure tenant, used as `account_id` by modules/volume-scanner. |
 <!-- END_TF_DOCS -->

@@ -93,7 +93,7 @@ run "resource_group_can_be_renamed" {
   assert {
     condition = alltrue([
       azurerm_resource_group.this.name == "rg-scanner",
-      azurerm_role_definition.scanner.name == "Stream Security Volume Scanner (rg-scanner)",
+      azurerm_role_definition.scanner.name == "Stream Security Volume Scanner (rg-scanner, 00000000)",
       streamsec_azure_volume_scanner_ack.this.resource_group == "rg-scanner",
     ])
     error_message = "resource_group_name must reach the group, the custom role's name and the acknowledgement."
@@ -396,7 +396,7 @@ run "custom_role_has_the_arm_templates_actions" {
 
   assert {
     condition = alltrue([
-      azurerm_role_definition.scanner.name == "Stream Security Volume Scanner (streamsec-scanner-tf-00000000)",
+      azurerm_role_definition.scanner.name == "Stream Security Volume Scanner (streamsec-scanner-tf-00000000, 00000000)",
       azurerm_role_definition.scanner.scope == "/subscriptions/00000000-0000-0000-0000-000000000000",
       azurerm_role_definition.scanner.assignable_scopes == tolist(["/subscriptions/00000000-0000-0000-0000-000000000000"]),
       azurerm_role_definition.scanner.permissions[0].actions == tolist([
@@ -501,7 +501,7 @@ run "azurefunctions_alone_takes_the_blob_read_role" {
     condition = alltrue([
       length(azurerm_role_assignment.acr_pull) == 1,
       length(azurerm_role_definition.function_packages) == 1,
-      azurerm_role_definition.function_packages[0].name == "Stream Security Volume Scanner function packages (streamsec-scanner-tf-00000000)",
+      azurerm_role_definition.function_packages[0].name == "Stream Security Volume Scanner function packages (streamsec-scanner-tf-00000000, 00000000)",
       azurerm_role_definition.function_packages[0].permissions[0].data_actions == toset(["Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read"]),
       try(length(azurerm_role_definition.function_packages[0].permissions[0].actions), 0) == 0,
       azurerm_role_definition.function_packages[0].assignable_scopes == tolist(["/subscriptions/00000000-0000-0000-0000-000000000000"]),
@@ -629,7 +629,7 @@ run "coexistence_can_be_opted_into" {
 }
 
 # A later ARM install must not lock an existing Terraform install out of its own
-# applies and its destroy.
+# re-applies.
 run "an_existing_install_is_not_locked_out_by_a_later_arm_scanner" {
   command = plan
 

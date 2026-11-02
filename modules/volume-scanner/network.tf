@@ -1,7 +1,5 @@
 ################################################################################
-# network_mode = "create_new": a dedicated VNet whose one subnet reaches the
-# internet only through a NAT gateway with a static public IP, and takes no
-# inbound traffic. "use_existing" skips all of it and uses existing_subnet_id.
+# Network
 ################################################################################
 
 locals {
@@ -74,9 +72,7 @@ resource "azurerm_virtual_network" "this" {
   tags = local.tags
 }
 
-# azapi, not azurerm_subnet: its service endpoint argument changed shape in azurerm 5.0
-# (service_endpoints became service_endpoint blocks), and no one configuration fits both
-# majors. The body is the ARM template's subnet, with the NSG and NAT gateway attached.
+# azapi rather than azurerm_subnet, whose service endpoint arguments differ between azurerm 4 and 5
 resource "azapi_resource" "subnet" {
   count = local.create_network ? 1 : 0
 
@@ -87,8 +83,7 @@ resource "azapi_resource" "subnet" {
   body = {
     properties = {
       addressPrefix = "10.255.0.0/24"
-      # Disk reads over SAS and registry layer pulls are blob traffic: over the endpoint
-      # they take the Azure backbone instead of the NAT gateway, which bills per GB.
+      # keeps disk reads and image pulls off the NAT gateway
       serviceEndpoints = [
         { service = "Microsoft.Storage" },
       ]
@@ -103,6 +98,5 @@ resource "azapi_resource" "subnet" {
     }
   }
 
-  # The jobs need egress from their first run: the NAT gateway must have its address.
   depends_on = [azurerm_nat_gateway_public_ip_association.this]
 }

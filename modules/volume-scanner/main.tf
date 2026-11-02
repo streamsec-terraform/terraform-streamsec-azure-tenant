@@ -2,13 +2,12 @@ data "azurerm_subscription" "current" {}
 
 data "streamsec_host" "this" {}
 
-# Refused (409) until the tenant is acknowledged in Stream Security.
 data "streamsec_azure_volume_scanner" "this" {
   account_id      = var.account_id
   subscription_id = local.subscription_id
 }
 
-# Plural: an empty list instead of an error on a miss; count waives the read when the guard is off.
+# container apps jobs in the subscription, to detect another scanner install
 data "azurerm_resources" "scanner_jobs" {
   count = var.allow_arm_coexistence ? 0 : 1
 
@@ -16,17 +15,16 @@ data "azurerm_resources" "scanner_jobs" {
 }
 
 locals {
-  # Reported to Stream Security by the install acknowledgement. Bump it with each release tag.
+  # reported to Stream Security on install, bump with each release
   module_version = "1.6.0"
 
   subscription_id    = lower(data.azurerm_subscription.current.subscription_id)
   subscription_scope = "/subscriptions/${local.subscription_id}"
 
-  # The "-tf" marker keeps the group apart from the console's ARM deployment,
-  # which creates streamsec-scanner-<first 8 characters of the subscription id>.
+  # differs from the console's ARM deployment group, streamsec-scanner-<subscription prefix>
   resource_group_name = var.resource_group_name != null ? var.resource_group_name : "streamsec-scanner-tf-${substr(local.subscription_id, 0, 8)}"
 
-  # The console's ARM template names, kept: they are scoped to the resource group.
+  # same names as the console's ARM template
   managed_identity_name  = "streamsec-scanner-mi"
   log_workspace_name     = "streamsec-scanner-logs"
   container_env_name     = "streamsec-scanner-env"
@@ -34,13 +32,12 @@ locals {
   worker_job_name        = "streamsec-scanner-worker"
   collection_token_name  = "collection-token"
   workload_profile_name  = "Consumption"
-  scanner_container_name = "scanner" # the orchestrator overrides the worker's container by this name
+  scanner_container_name = "scanner" # the orchestrator refers to the worker's container by this name
 
-  # Every Container Apps job in the subscription; empty when the guard is off.
   scanner_jobs      = flatten(data.azurerm_resources.scanner_jobs[*].resources)
   orchestrator_jobs = [for job in local.scanner_jobs : job if lower(job.name) == local.orchestrator_job_name]
 
-  # Maintenance apply or destroy: this module's own orchestrator never trips the guard.
+  # an existing install of this module never blocks apply or destroy
   already_installed = anytrue([
     for job in local.orchestrator_jobs : lower(job.resource_group_name) == lower(local.resource_group_name)
   ])
@@ -59,7 +56,7 @@ locals {
 
   api_url = trimsuffix(data.streamsec_host.this.url, "/")
 
-  # First DNS label of a per-tenant host is the tenant; untrue behind a shared endpoint.
+  # first label of the Stream Security host
   derived_tenant_name = split(".", replace(replace(local.api_url, "https://", ""), "http://", ""))[0]
   tenant_name         = var.tenant_name != null ? trimspace(var.tenant_name) : local.derived_tenant_name
 
@@ -67,7 +64,6 @@ locals {
 
   customer_id = trimspace(var.customer_id)
 
-  # Normalized, not raw: the scanner's comma split would otherwise see " appservice".
   workload_kind_list     = [for kind in split(",", var.workload_kinds) : trimspace(kind) if trimspace(kind) != ""]
   scan_workloads         = length(local.workload_kind_list) > 0
   scan_function_packages = contains(local.workload_kind_list, "azurefunctions")
@@ -77,7 +73,7 @@ locals {
     "streamsec:customer"  = local.customer_id
   })
 
-  # Shared by both jobs. The collection token is added separately, as a secret reference.
+  # shared by both jobs, the collection token is passed as a secret
   common_env = [
     { name = "COLLECTOR_PROVIDER", value = "azure" },
     { name = "AZURE_CLIENT_ID", value = azurerm_user_assigned_identity.this.client_id },
@@ -89,8 +85,7 @@ locals {
     { name = "COLLECTOR_STREAM_SCAN_WORKSPACE", value = local.customer_id },
   ]
 
-  # The orchestrator starts every worker execution with this environment, so the
-  # scan options live here and not on the orchestrator.
+  # the orchestrator starts each worker with this environment, so the scan options are set here
   worker_env = concat(local.common_env, [
     { name = "COLLECTOR_ROLE", value = "worker" },
     { name = "COLLECTOR_CONCURRENCY", value = "5" },
@@ -107,10 +102,14 @@ locals {
     { name = "COLLECTOR_AZURE_CONTAINER_APP_JOB", value = azurerm_container_app_job.worker.name },
     { name = "COLLECTOR_SHARD_SIZE", value = tostring(var.shard_size) },
     { name = "COLLECTOR_MAX_CONCURRENT_SHARDS", value = tostring(var.max_concurrent_shards) },
-    # Set even when empty: an empty value turns workload scanning off, an unset one leaves it on.
+    # always set: an empty value turns workload scanning off
     { name = "COLLECTOR_WORKLOAD_KINDS", value = join(",", local.workload_kind_list) },
   ])
 }
+
+################################################################################
+# Resource Group
+################################################################################
 
 resource "azurerm_resource_group" "this" {
   name     = local.resource_group_name
@@ -119,13 +118,16 @@ resource "azurerm_resource_group" "this" {
   tags = local.tags
 
   lifecycle {
-    # Every other resource, the roles included, references this group, so this one guard covers them.
     precondition {
       condition     = local.arm_coexistence_ok
       error_message = local.arm_coexistence_error
     }
   }
 }
+
+################################################################################
+# Log Analytics, Identity and Container Apps Environment
+################################################################################
 
 resource "azurerm_log_analytics_workspace" "this" {
   name                = local.log_workspace_name
@@ -154,8 +156,7 @@ resource "azurerm_container_app_environment" "this" {
   infrastructure_subnet_id       = local.subnet_id
   internal_load_balancer_enabled = false
 
-  # A subnet delegated to Microsoft.App/environments takes a workload profiles environment.
-  # Declared, so the profile Azure adds is not planned away on every apply.
+  # required for a subnet delegated to Microsoft.App/environments
   workload_profile {
     name                  = local.workload_profile_name
     workload_profile_type = local.workload_profile_name
@@ -171,7 +172,11 @@ resource "azurerm_container_app_environment" "this" {
   }
 }
 
-# Started by the orchestrator, once per shard of VMs and once for the workloads.
+################################################################################
+# Scanner Jobs
+################################################################################
+
+# started by the orchestrator for each shard of VMs and for the workloads
 resource "azurerm_container_app_job" "worker" {
   name                         = local.worker_job_name
   location                     = azurerm_resource_group.this.location
@@ -221,9 +226,6 @@ resource "azurerm_container_app_job" "worker" {
   tags = local.tags
 
   lifecycle {
-    # The configuration checks live on the worker: the orchestrator depends on it.
-
-    # Nothing else constrains the scheme: derived_tenant_name strips http:// as well.
     precondition {
       condition     = startswith(local.api_url, "https://")
       error_message = "The Stream Security host resolved to \"${local.api_url}\", which is not https. The scanner sends its collection token and findings there; set the streamsec provider host to an https URL."
@@ -236,7 +238,7 @@ resource "azurerm_container_app_job" "worker" {
   }
 }
 
-# Runs on the schedule and for the initial scan: finds the VMs and workloads, and starts the workers.
+# runs on the schedule, finds the VMs and workloads and starts the workers
 resource "azurerm_container_app_job" "orchestrator" {
   name                         = local.orchestrator_job_name
   location                     = azurerm_resource_group.this.location
@@ -287,8 +289,11 @@ resource "azurerm_container_app_job" "orchestrator" {
   tags = local.tags
 }
 
-# Tells Stream Security the scanner is installed in this subscription, and on destroy that it
-# is gone. After the jobs and their roles, so it is created last and destroyed first.
+################################################################################
+# Stream Security
+################################################################################
+
+# created after the jobs and roles, so on destroy it reports the scanner removed first
 resource "streamsec_azure_volume_scanner_ack" "this" {
   account_id      = var.account_id
   subscription_id = local.subscription_id
@@ -304,8 +309,7 @@ resource "streamsec_azure_volume_scanner_ack" "this" {
   ]
 }
 
-# One immediate scan at apply time; the schedule runs the next ones. Fires once: the
-# orchestrator's id does not change on update.
+# one scan right after install, the schedule runs the next ones
 resource "azapi_resource_action" "initial_scan" {
   count = var.trigger_initial_scan ? 1 : 0
 
@@ -314,6 +318,5 @@ resource "azapi_resource_action" "initial_scan" {
   action      = "start"
   method      = "POST"
 
-  # Last: the scan needs its roles, and reports to an install Stream Security knows of.
   depends_on = [streamsec_azure_volume_scanner_ack.this]
 }

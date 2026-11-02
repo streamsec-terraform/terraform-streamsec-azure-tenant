@@ -3,7 +3,7 @@
 ################################################################################
 
 variable "account_id" {
-  description = "Stream Security id of the Azure tenant, not the Azure tenant id: the root module's account_id output, or the id of a streamsec_azure_tenant resource or data source. The tenant must be acknowledged before this module can read the scanner's collection token."
+  description = "The Stream Security ID of the Azure tenant, such as the root module's `account_id` output. The tenant must be acknowledged first."
   type        = string
   nullable    = false
 
@@ -14,7 +14,7 @@ variable "account_id" {
 }
 
 variable "customer_id" {
-  description = "Stream Security workspace id, the same value as the streamsec provider's workspace_id. A wrong value is silent: findings are dropped and the scanner still looks healthy."
+  description = "The Stream Security workspace ID, the same as the streamsec provider's `workspace_id`."
   type        = string
   nullable    = false
 
@@ -25,7 +25,7 @@ variable "customer_id" {
 }
 
 variable "tenant_name" {
-  description = "Stream Security tenant name. Defaults to the first DNS label of the provider host; set it explicitly behind a shared endpoint or a custom DNS name."
+  description = "The Stream Security tenant name. Defaults to the first label of the streamsec provider host."
   type        = string
   default     = null
 
@@ -36,12 +36,11 @@ variable "tenant_name" {
 }
 
 ################################################################################
-# What the console's ARM template asks for. The subscription is the azurerm
-# provider's.
+# Scanner
 ################################################################################
 
 variable "location" {
-  description = "Azure region for all of the scanner's resources, such as \"eastus\". The scanner covers every region of the subscription regardless."
+  description = "The location to create the scanner resources in. The scanner covers every location of the subscription."
   type        = string
   nullable    = false
 
@@ -52,7 +51,7 @@ variable "location" {
 }
 
 variable "resource_group_name" {
-  description = "Resource group to create for the scanner. Defaults to streamsec-scanner-tf- and the first 8 characters of the subscription id, apart from the console's streamsec-scanner- with the same suffix."
+  description = "The name of the resource group to create for the scanner. Defaults to `streamsec-scanner-tf-` followed by the first 8 characters of the subscription ID."
   type        = string
   default     = null
 
@@ -63,7 +62,7 @@ variable "resource_group_name" {
 }
 
 variable "scanner_image" {
-  description = "Container image of the scanner. Pin a release tag to control upgrades; :latest follows every release."
+  description = "The scanner container image. Pin a release tag to control upgrades."
   type        = string
   default     = "public.ecr.aws/stream-security/volume-scanner:latest"
   nullable    = false
@@ -75,7 +74,7 @@ variable "scanner_image" {
 }
 
 variable "network_mode" {
-  description = "\"create_new\" creates a VNet with a NAT gateway for the scanner. \"use_existing\" runs it in existing_subnet_id instead."
+  description = "Whether to create a new VNet with a NAT gateway for the scanner (`create_new`) or to use an existing subnet (`use_existing`)."
   type        = string
   default     = "create_new"
   nullable    = false
@@ -87,7 +86,7 @@ variable "network_mode" {
 }
 
 variable "existing_subnet_id" {
-  description = "Resource id of the subnet to run the scanner in, required when network_mode is \"use_existing\" and ignored otherwise. It must be delegated to Microsoft.App/environments, be /27 or larger, and have outbound internet access."
+  description = "The ID of an existing subnet to run the scanner in. Only used if `network_mode` is `use_existing`. The subnet must be delegated to Microsoft.App/environments, be /27 or larger and have outbound internet access."
   type        = string
   default     = null
 
@@ -98,7 +97,7 @@ variable "existing_subnet_id" {
 }
 
 variable "shard_size" {
-  description = "VMs per worker execution. Lower means more executions in parallel; higher means fewer, longer ones."
+  description = "The number of VMs each worker execution scans."
   type        = number
   default     = 100
   nullable    = false
@@ -110,7 +109,7 @@ variable "shard_size" {
 }
 
 variable "max_concurrent_shards" {
-  description = "Maximum number of worker executions in flight at once."
+  description = "The maximum number of worker executions running at once."
   type        = number
   default     = 10
   nullable    = false
@@ -122,13 +121,11 @@ variable "max_concurrent_shards" {
 }
 
 variable "workload_kinds" {
-  description = "Workloads to scan besides VMs, comma-separated: containerapps, azurefunctions, appservice, containerinstances. \"\" scans VMs only. Also gates the AcrPull and function-package role assignments."
+  description = "Comma-separated workloads to scan besides VMs: containerapps, azurefunctions, appservice, containerinstances. Set to an empty string to scan VMs only."
   type        = string
   default     = "containerapps,azurefunctions,appservice,containerinstances"
   nullable    = false
 
-  # Normalized before checking, so "appservice, containerapps" is accepted. "" disables workload
-  # scanning deliberately; "  " or "," would disable it silently, dropping the role assignments.
   validation {
     condition = length(setsubtract(
       toset([for kind in split(",", var.workload_kinds) : trimspace(kind) if trimspace(kind) != ""]),
@@ -142,53 +139,53 @@ variable "workload_kinds" {
 }
 
 variable "scan_language_packages" {
-  description = "Detect language-level packages on disk (Python, Node, Ruby, Go, Rust, Java)."
+  description = "Whether to scan language packages (Python, Node, Ruby, Go, Rust, Java)."
   type        = bool
   default     = true
   nullable    = false
 }
 
 variable "scan_databases" {
-  description = "Detect installed databases from their on-disk signatures. Adds a filesystem walk per VM."
+  description = "Whether to detect installed databases."
   type        = bool
   default     = false
   nullable    = false
 }
 
 variable "scan_ai_workloads" {
-  description = "Detect AI/ML framework installs and surface them as workload metadata."
+  description = "Whether to detect AI/ML frameworks."
   type        = bool
   default     = false
   nullable    = false
 }
 
 variable "scan_secrets" {
-  description = "Detect secrets and credentials on disk. Significantly increases scan duration."
+  description = "Whether to scan for secrets on disk. Increases scan duration."
   type        = bool
   default     = false
   nullable    = false
 }
 
 variable "scan_data_volumes" {
-  description = "Also snapshot and scan the data disks attached to a VM, not only its OS disk."
+  description = "Whether to scan VM data disks in addition to OS disks."
   type        = bool
   default     = true
   nullable    = false
 }
 
 variable "scan_kubernetes_volumes" {
-  description = "Also scan the data disks a Kubernetes CSI driver created for pod volume claims, which the data disk scan otherwise skips."
+  description = "Whether to scan disks created for Kubernetes persistent volume claims. Only used if `scan_data_volumes` is true."
   type        = bool
   default     = false
   nullable    = false
 }
 
 ################################################################################
-# Terraform only: the console has no equivalent.
+# Schedule and Coexistence
 ################################################################################
 
 variable "schedule_cron_expression" {
-  description = "When the orchestrator runs, as a five-field cron expression in UTC. Daily at 03:00 by default."
+  description = "The scan schedule, as a cron expression in UTC."
   type        = string
   default     = "0 3 * * *"
   nullable    = false
@@ -200,21 +197,21 @@ variable "schedule_cron_expression" {
 }
 
 variable "trigger_initial_scan" {
-  description = "Start one scan at the end of the apply that creates the scanner, instead of waiting for the schedule."
+  description = "Whether to start a scan right after the scanner is created."
   type        = bool
   default     = true
   nullable    = false
 }
 
 variable "allow_arm_coexistence" {
-  description = "Allow deploying alongside another scanner in the same subscription, such as the console's ARM deployment. Off by default: two scanners scan every VM twice and delete each other's snapshots."
+  description = "Whether to allow deploying when another scanner exists in the subscription, such as the console's ARM deployment. Two scanners in one subscription interfere with each other."
   type        = bool
   default     = false
   nullable    = false
 }
 
 variable "tags" {
-  description = "Tags to add to every resource the module creates."
+  description = "The tags to apply to the scanner resources."
   type        = map(string)
   default     = {}
   nullable    = false
