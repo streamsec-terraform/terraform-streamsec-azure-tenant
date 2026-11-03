@@ -29,3 +29,10 @@ module "flowlogs" {
   network_traffic_container_name      = "insights-logs-flowlogflowevent"
   depends_on                          = [module.tenant]
 }
+
+module "volume_scanner" {
+  source      = "../../modules/volume-scanner"
+  account_id  = module.tenant.account_id
+  customer_id = "xxxxxxxxxxxx"
+  location    = "eastus"
+}

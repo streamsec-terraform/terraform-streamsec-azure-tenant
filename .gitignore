@@ -37,3 +37,9 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# Plan files hold the volume scanner's collection token in plaintext.
+tfplan
+tfplan.*
+*.tfplan
+*.tfplan.*
