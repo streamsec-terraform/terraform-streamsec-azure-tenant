@@ -3,6 +3,8 @@ Terraform module for azure tenant
 
 To scan the tenant's VMs and workloads for vulnerabilities without agents, add [`modules/volume-scanner`](modules/volume-scanner) once per subscription, with this module's `account_id` output. [`examples/basic`](examples/basic) shows both.
 
+To scan several subscriptions from one scanner, a hub, grant its managed identity access to them with [`modules/volume-scanner-hub-access`](modules/volume-scanner-hub-access). [`examples/volume-scanner-hub`](examples/volume-scanner-hub) shows a hub and a subscription it scans.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
