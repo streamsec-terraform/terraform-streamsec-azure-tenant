@@ -40,8 +40,18 @@ module "hub_scanner" {
   }
 }
 
-# Then choose the subscription in the Stream Security console, under the hub's
-# "Subscriptions this scanner scans".
+# Which subscriptions the hub scans. coverage = "all" instead scans every other
+# subscription of the tenant that has no scanner of its own and no other hub; leave
+# out subscription_ids then. Each subscription still needs the hub's access below.
+resource "streamsec_azure_scanner_hub" "this" {
+  account_id       = data.streamsec_azure_tenant.this.id
+  subscription_id  = var.hub_subscription_id
+  coverage         = "selected"
+  subscription_ids = [var.scanned_subscription_id]
+
+  depends_on = [module.hub_scanner]
+}
+
 module "hub_access" {
   source = "../../modules/volume-scanner-hub-access"
 

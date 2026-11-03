@@ -1,6 +1,6 @@
 # Volume scanner hub
 
-A hub subscription's volume scanner that also scans a second subscription of the tenant. [`modules/volume-scanner`](../../modules/volume-scanner) deploys the scanner in the hub, and [`modules/volume-scanner-hub-access`](../../modules/volume-scanner-hub-access) grants its managed identity access to the second subscription. Choose that subscription in the Stream Security console afterwards, under the hub's "Subscriptions this scanner scans".
+A hub subscription's volume scanner that also scans a second subscription of the tenant. [`modules/volume-scanner`](../../modules/volume-scanner) deploys the scanner in the hub, and [`modules/volume-scanner-hub-access`](../../modules/volume-scanner-hub-access) grants its managed identity access to the second subscription. `streamsec_azure_scanner_hub` makes the hub scan it; the Stream Security console's "Subscriptions this scanner scans" sets the same.
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
@@ -28,6 +28,7 @@ A hub subscription's volume scanner that also scans a second subscription of the
 
 | Name | Type |
 |------|------|
+| [streamsec_azure_scanner_hub.this](https://registry.terraform.io/providers/streamsec-terraform/streamsec/latest/docs/resources/azure_scanner_hub) | resource |
 | [streamsec_azure_tenant.this](https://registry.terraform.io/providers/streamsec-terraform/streamsec/latest/docs/data-sources/azure_tenant) | data source |
 
 ## Inputs

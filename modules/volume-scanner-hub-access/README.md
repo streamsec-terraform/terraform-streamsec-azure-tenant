@@ -42,7 +42,7 @@ module "hub_access" {
 }
 ```
 
-Then, in the Stream Security console, choose the subscriptions the hub scans, under "Subscriptions this scanner scans". [`examples/volume-scanner-hub`](../../examples/volume-scanner-hub) has the whole setup.
+Then set which subscriptions the hub scans, with the streamsec provider's `streamsec_azure_scanner_hub` or in the Stream Security console, under "Subscriptions this scanner scans". [`examples/volume-scanner-hub`](../../examples/volume-scanner-hub) has the whole setup.
 
 ### Notes
 
