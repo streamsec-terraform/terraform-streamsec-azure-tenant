@@ -1,29 +1,7 @@
-# volume-scanner
-
-Deploys the Stream Security agentless volume scanner into one Azure subscription. It scans the subscription's VMs, Container Apps, Function Apps, App Service web apps and Container Instances for vulnerabilities, without agents. Add one module instance per subscription.
-
-## Usage
-
-```hcl
-module "tenant" {
-  source        = "streamsec-terraform/azure-tenant/streamsec"
-  display_name  = "My tenant"
-  subscriptions = ["00000000-0000-0000-0000-000000000000"]
-}
-
-module "volume_scanner" {
-  source      = "streamsec-terraform/azure-tenant/streamsec//modules/volume-scanner"
-  account_id  = module.tenant.account_id
-  customer_id = "your-workspace-id"
-  location    = "eastus"
-}
-```
-
-For a tenant connected from the console, use the `id` of the `streamsec_azure_tenant` data source as `account_id`.
-
 ## Notes
 
 - The scanner is deployed into the azurerm provider's subscription, which must be one of the tenant's `subscriptions`.
+- For a tenant connected from the console, use the `id` of the `streamsec_azure_tenant` data source as `account_id`.
 - The identity running Terraform needs Owner, or Contributor and User Access Administrator, on the subscription.
 - The `Microsoft.App`, `Microsoft.OperationalInsights`, `Microsoft.Network` and `Microsoft.ManagedIdentity` resource providers must be registered in the subscription.
 - Don't deploy the module in a subscription that has the scanner from the console's ARM template: delete that deployment's resource group first.

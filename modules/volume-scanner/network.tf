@@ -83,7 +83,6 @@ resource "azapi_resource" "subnet" {
   body = {
     properties = {
       addressPrefix = "10.255.0.0/24"
-      # keeps disk reads and image pulls off the NAT gateway
       serviceEndpoints = [
         { service = "Microsoft.Storage" },
       ]

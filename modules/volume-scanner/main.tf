@@ -7,7 +7,6 @@ data "streamsec_azure_volume_scanner" "this" {
   subscription_id = local.subscription_id
 }
 
-# container apps jobs in the subscription, to detect another scanner install
 data "azurerm_resources" "scanner_jobs" {
   count = var.allow_arm_coexistence ? 0 : 1
 
@@ -21,10 +20,8 @@ locals {
   subscription_id    = lower(data.azurerm_subscription.current.subscription_id)
   subscription_scope = "/subscriptions/${local.subscription_id}"
 
-  # differs from the console's ARM deployment group, streamsec-scanner-<subscription prefix>
   resource_group_name = var.resource_group_name != null ? var.resource_group_name : "streamsec-scanner-tf-${substr(local.subscription_id, 0, 8)}"
 
-  # same names as the console's ARM template
   managed_identity_name  = "streamsec-scanner-mi"
   log_workspace_name     = "streamsec-scanner-logs"
   container_env_name     = "streamsec-scanner-env"
@@ -37,7 +34,6 @@ locals {
   scanner_jobs      = flatten(data.azurerm_resources.scanner_jobs[*].resources)
   orchestrator_jobs = [for job in local.scanner_jobs : job if lower(job.name) == local.orchestrator_job_name]
 
-  # an existing install of this module never blocks apply or destroy
   already_installed = anytrue([
     for job in local.orchestrator_jobs : lower(job.resource_group_name) == lower(local.resource_group_name)
   ])
@@ -56,7 +52,6 @@ locals {
 
   api_url = trimsuffix(data.streamsec_host.this.url, "/")
 
-  # first label of the Stream Security host
   derived_tenant_name = split(".", replace(replace(local.api_url, "https://", ""), "http://", ""))[0]
   tenant_name         = var.tenant_name != null ? trimspace(var.tenant_name) : local.derived_tenant_name
 
@@ -73,7 +68,6 @@ locals {
     "streamsec:customer"  = local.customer_id
   })
 
-  # shared by both jobs, the collection token is passed as a secret
   common_env = [
     { name = "COLLECTOR_PROVIDER", value = "azure" },
     { name = "AZURE_CLIENT_ID", value = azurerm_user_assigned_identity.this.client_id },
@@ -85,7 +79,6 @@ locals {
     { name = "COLLECTOR_STREAM_SCAN_WORKSPACE", value = local.customer_id },
   ]
 
-  # the orchestrator starts each worker with this environment, so the scan options are set here
   worker_env = concat(local.common_env, [
     { name = "COLLECTOR_ROLE", value = "worker" },
     { name = "COLLECTOR_CONCURRENCY", value = "5" },
@@ -156,7 +149,6 @@ resource "azurerm_container_app_environment" "this" {
   infrastructure_subnet_id       = local.subnet_id
   internal_load_balancer_enabled = false
 
-  # required for a subnet delegated to Microsoft.App/environments
   workload_profile {
     name                  = local.workload_profile_name
     workload_profile_type = local.workload_profile_name
@@ -176,7 +168,6 @@ resource "azurerm_container_app_environment" "this" {
 # Scanner Jobs
 ################################################################################
 
-# started by the orchestrator for each shard of VMs and for the workloads
 resource "azurerm_container_app_job" "worker" {
   name                         = local.worker_job_name
   location                     = azurerm_resource_group.this.location
@@ -238,7 +229,6 @@ resource "azurerm_container_app_job" "worker" {
   }
 }
 
-# runs on the schedule, finds the VMs and workloads and starts the workers
 resource "azurerm_container_app_job" "orchestrator" {
   name                         = local.orchestrator_job_name
   location                     = azurerm_resource_group.this.location
@@ -309,7 +299,6 @@ resource "streamsec_azure_volume_scanner_ack" "this" {
   ]
 }
 
-# one scan right after install, the schedule runs the next ones
 resource "azapi_resource_action" "initial_scan" {
   count = var.trigger_initial_scan ? 1 : 0
 

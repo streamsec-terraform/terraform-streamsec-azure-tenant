@@ -1,10 +1,10 @@
 terraform {
-  required_version = ">= 1.3" # startswith()
+  required_version = ">= 1.3"
 
   required_providers {
     streamsec = {
       source  = "streamsec-terraform/streamsec"
-      version = ">= 1.15.0" # streamsec_azure_volume_scanner and its acknowledgement
+      version = ">= 1.15.0"
     }
     azurerm = {
       source  = "hashicorp/azurerm"

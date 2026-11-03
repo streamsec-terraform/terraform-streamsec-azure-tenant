@@ -42,7 +42,6 @@ resource "azurerm_role_assignment" "scanner" {
   principal_type     = "ServicePrincipal"
 }
 
-# pull workload images from the subscription's container registries
 resource "azurerm_role_assignment" "acr_pull" {
   count = local.scan_workloads ? 1 : 0
 
@@ -52,7 +51,6 @@ resource "azurerm_role_assignment" "acr_pull" {
   principal_type       = "ServicePrincipal"
 }
 
-# read Flex Consumption Function App packages, limited by the condition to released-package.zip
 resource "azurerm_role_definition" "function_packages" {
   count = local.scan_function_packages ? 1 : 0
 
