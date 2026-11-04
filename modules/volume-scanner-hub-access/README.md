@@ -52,6 +52,7 @@ Then set which subscriptions the hub scans, with the streamsec provider's `strea
 - **Permissions to apply.** The identity running Terraform needs Owner, or User Access Administrator, on each scope: the module creates role definitions and role assignments.
 - **A subscription with its own scanner** keeps scanning itself; a hub doesn't scan it.
 - **Removing access.** `terraform destroy` deletes the roles and assignments. Until the subscriptions are also taken off the hub in Stream Security, the hub reports them as having no access.
+- **Moving from the console's access template.** Delete that deployment's role assignments to the hub's identity first: Azure refuses a second `AcrPull` assignment to the same identity on the same scope.
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
