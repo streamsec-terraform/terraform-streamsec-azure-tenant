@@ -83,6 +83,16 @@ run "a_management_group_gets_one_role" {
     condition     = output.granted_on.scope == "management_group" && output.granted_on.ids == tolist(["contoso-workloads"])
     error_message = "granted_on must name the management group."
   }
+
+  assert {
+    condition = alltrue([
+      length(azurerm_role_definition.function_packages) == 0,
+      length(azurerm_role_assignment.function_packages) == 2,
+      azurerm_role_assignment.function_packages["contoso-workloads/hub_a"].role_definition_name == "Storage Blob Data Reader",
+      strcontains(azurerm_role_assignment.function_packages["contoso-workloads/hub_a"].condition, "StringEquals 'released-package.zip'"),
+    ])
+    error_message = "Azure refuses a custom role with data actions on a management group: the package read there must be Storage Blob Data Reader, limited by the condition."
+  }
 }
 
 ################################################################################

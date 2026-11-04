@@ -17,6 +17,10 @@ locals {
   workload_kind_list     = [for kind in split(",", var.workload_kinds) : trimspace(kind) if trimspace(kind) != ""]
   scan_workloads         = length(local.workload_kind_list) > 0
   scan_function_packages = contains(local.workload_kind_list, "azurefunctions")
+
+  # Azure refuses a custom role with data actions on a management group, so the package
+  # read there is the built-in Storage Blob Data Reader, limited by the same condition
+  on_management_group = var.grant_on.management_group_id != null
 }
 
 ################################################################################
@@ -79,7 +83,7 @@ resource "azurerm_role_assignment" "acr_pull" {
 }
 
 resource "azurerm_role_definition" "function_packages" {
-  for_each = local.scan_function_packages ? local.scopes : {}
+  for_each = local.scan_function_packages && !local.on_management_group ? local.scopes : {}
 
   name        = "Stream Security Volume Scanner Target function packages (${each.key})"
   scope       = each.value
@@ -95,10 +99,11 @@ resource "azurerm_role_definition" "function_packages" {
 resource "azurerm_role_assignment" "function_packages" {
   for_each = local.scan_function_packages ? local.grants : {}
 
-  scope              = local.scopes[each.value.scope]
-  role_definition_id = azurerm_role_definition.function_packages[each.value.scope].role_definition_resource_id
-  principal_id       = each.value.principal_id
-  principal_type     = "ServicePrincipal"
-  condition_version  = "2.0"
-  condition          = "((!(ActionMatches{'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read'})) OR (@Resource[Microsoft.Storage/storageAccounts/blobServices/containers/blobs:path] StringEquals 'released-package.zip'))"
+  scope                = local.scopes[each.value.scope]
+  role_definition_id   = local.on_management_group ? null : azurerm_role_definition.function_packages[each.value.scope].role_definition_resource_id
+  role_definition_name = local.on_management_group ? "Storage Blob Data Reader" : null
+  principal_id         = each.value.principal_id
+  principal_type       = "ServicePrincipal"
+  condition_version    = "2.0"
+  condition            = "((!(ActionMatches{'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read'})) OR (@Resource[Microsoft.Storage/storageAccounts/blobServices/containers/blobs:path] StringEquals 'released-package.zip'))"
 }

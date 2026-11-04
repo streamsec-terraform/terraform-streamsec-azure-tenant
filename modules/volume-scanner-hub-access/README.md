@@ -9,13 +9,13 @@ This module gives the hubs' managed identities that access, on a management grou
 On each scope, the management group or each subscription:
 
 - The custom role `Stream Security Volume Scanner Target (<scope ID>)`: the actions of the scanner's own role without starting jobs, which only the hub does, plus `Microsoft.Resources/subscriptions/read`, which the hub checks each subscription with before scanning it.
-- With `azurefunctions` in `workload_kinds`, the custom role `Stream Security Volume Scanner Target function packages (<scope ID>)`, a blob read.
+- With `azurefunctions` in `workload_kinds`, on each subscription, the custom role `Stream Security Volume Scanner Target function packages (<scope ID>)`, a blob read.
 
 For each hub on each scope, assignments to its managed identity:
 
 - the target role;
 - `AcrPull`, when `workload_kinds` has any kind, to pull workload images;
-- the function-package role, limited by its assignment's condition to blobs named `released-package.zip`.
+- the function-package read, limited by its assignment's condition to blobs named `released-package.zip`. On a management group it is the built-in `Storage Blob Data Reader`, since Azure doesn't assign a custom role with data actions there; besides the limited blob read, that role reads container properties and can request a user delegation key.
 
 Nothing is created in the hubs.
 
