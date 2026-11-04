@@ -68,7 +68,7 @@ run "default_plan_creates_the_whole_scanner" {
     condition = alltrue([
       streamsec_azure_volume_scanner_ack.this.account_id == "0123456789abcdef01234567",
       streamsec_azure_volume_scanner_ack.this.subscription_id == "00000000-0000-0000-0000-000000000000",
-      streamsec_azure_volume_scanner_ack.this.module_version == "1.6.0",
+      streamsec_azure_volume_scanner_ack.this.module_version == "1.7.0",
       streamsec_azure_volume_scanner_ack.this.resource_group == "streamsec-scanner-tf-00000000",
     ])
     error_message = "The acknowledgement must name the tenant, the subscription, the module version and the resource group."
@@ -118,6 +118,15 @@ run "subscription_id_is_lowercased" {
       azurerm_resource_group.this.name == "streamsec-scanner-tf-0000000a",
     ])
     error_message = "Stream Security matches the subscription id exactly, in lowercase."
+  }
+}
+
+run "the_acknowledgement_reports_the_scanners_identity" {
+  command = apply
+
+  assert {
+    condition     = streamsec_azure_volume_scanner_ack.this.principal_id == azurerm_user_assigned_identity.this.principal_id
+    error_message = "The acknowledgement must carry the managed identity's principal id: a hub's access template grants it."
   }
 }
 
