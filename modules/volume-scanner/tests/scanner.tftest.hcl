@@ -13,6 +13,22 @@ mock_provider "streamsec" {
   source = "./tests/mocks/streamsec"
 }
 
+# ids of their own, so a test can tell these from the orchestrator job and the other roles
+override_resource {
+  target = azurerm_container_app_job.worker
+  values = {
+    id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/streamsec-scanner-tf-00000000/providers/Microsoft.App/jobs/streamsec-scanner-worker"
+  }
+}
+
+override_resource {
+  target = azurerm_role_definition.worker_start
+  values = {
+    role_definition_id          = "00000000-0000-0000-0000-000000000004"
+    role_definition_resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-000000000004"
+  }
+}
+
 variables {
   account_id  = "0123456789abcdef01234567"
   customer_id = "workspace-abc"
@@ -452,8 +468,26 @@ run "role_assignments_go_to_the_managed_identity" {
       azurerm_role_assignment.acr_pull[0].principal_id == "00000000-0000-0000-0000-000000000002",
       azurerm_role_assignment.function_packages[0].principal_id == "00000000-0000-0000-0000-000000000002",
       azurerm_role_assignment.function_packages[0].role_definition_id == azurerm_role_definition.function_packages[0].role_definition_resource_id,
+      azurerm_role_assignment.worker_start.principal_id == "00000000-0000-0000-0000-000000000002",
+      azurerm_role_assignment.worker_start.role_definition_id == azurerm_role_definition.worker_start.role_definition_resource_id,
     ])
     error_message = "Every role must be assigned to the scanner's managed identity."
+  }
+}
+
+run "the_orchestrator_may_override_only_the_worker_job" {
+  command = apply
+
+  assert {
+    condition = alltrue([
+      azurerm_role_definition.worker_start.name == "Stream Security Volume Scanner worker start (streamsec-scanner-tf-00000000, 00000000)",
+      azurerm_role_definition.worker_start.permissions[0].actions == tolist(["Microsoft.App/jobs/write"]),
+      azurerm_role_definition.worker_start.assignable_scopes == tolist(["/subscriptions/00000000-0000-0000-0000-000000000000"]),
+      azurerm_role_assignment.worker_start.scope == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/streamsec-scanner-tf-00000000/providers/Microsoft.App/jobs/streamsec-scanner-worker",
+      azurerm_role_assignment.worker_start.role_definition_id == "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-000000000004",
+      azurerm_role_assignment.worker_start.principal_type == "ServicePrincipal",
+    ])
+    error_message = "Starting the worker with a template override needs Microsoft.App/jobs/write, granted on the worker job only."
   }
 }
 
