@@ -3,7 +3,7 @@ locals {
   scopes = var.grant_on.management_group_id != null ? {
     (var.grant_on.management_group_id) = "/providers/Microsoft.Management/managementGroups/${var.grant_on.management_group_id}"
     } : {
-    for id in var.grant_on.subscription_ids : lower(id) => "/subscriptions/${lower(id)}"
+    for id in distinct([for s in var.grant_on.subscription_ids : lower(s)]) : id => "/subscriptions/${id}"
   }
 
   # each hub on each scope, keyed "<scope>/<hub>"

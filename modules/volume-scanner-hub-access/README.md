@@ -24,13 +24,15 @@ Nothing is created in the hubs.
 ```hcl
 module "hub_scanner" {
   source      = "streamsec-terraform/azure-tenant/streamsec//modules/volume-scanner"
+  version     = "~> 1.7"
   account_id  = data.streamsec_azure_tenant.this.id
   customer_id = var.workspace_id
   location    = "eastus"
 }
 
 module "hub_access" {
-  source = "streamsec-terraform/azure-tenant/streamsec//modules/volume-scanner-hub-access"
+  source  = "streamsec-terraform/azure-tenant/streamsec//modules/volume-scanner-hub-access"
+  version = "~> 1.7"
 
   hub_principal_ids = {
     hub = module.hub_scanner.managed_identity_principal_id
@@ -52,6 +54,8 @@ Then set which subscriptions the hub scans, with the streamsec provider's `strea
 - **Permissions to apply.** The identity running Terraform needs Owner, or User Access Administrator, on each scope: the module creates role definitions and role assignments.
 - **A subscription with its own scanner** keeps scanning itself; a hub doesn't scan it.
 - **Removing access.** `terraform destroy` deletes the roles and assignments. Until the subscriptions are also taken off the hub in Stream Security, the hub reports them as having no access.
+- **Not the hubs' own subscriptions.** Leave them out of `subscription_ids`: `modules/volume-scanner` already grants the hub's identity `AcrPull` there, and Azure refuses the same assignment twice. A management group above a hub is fine.
+- **Renaming a key of `hub_principal_ids`** replaces that hub's assignments, and Azure can refuse the new ones while the old ones still exist. Rename with a `moved` block instead, or apply twice.
 - **Moving from the console's access template.** Delete that deployment's role assignments to the hub's identity first: Azure refuses a second `AcrPull` assignment to the same identity on the same scope.
 
 <!-- BEGIN_TF_DOCS -->
@@ -86,7 +90,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_grant_on"></a> [grant\_on](#input\_grant\_on) | Where the hubs get access, exactly one of: `{ management_group_id = "..." }` for every subscription under the management group, including ones added later; or `{ subscription_ids = [...] }` for those subscriptions only. IDs must be known at plan time. | <pre>object({<br/>    management_group_id = optional(string)<br/>    subscription_ids    = optional(list(string))<br/>  })</pre> | n/a | yes |
+| <a name="input_grant_on"></a> [grant\_on](#input\_grant\_on) | Where the hubs get access, exactly one of: `{ management_group_id = "..." }` for every subscription under the management group, including ones added later; or `{ subscription_ids = [...] }` for those subscriptions only. IDs must be known at plan time. Leave out the hubs' own subscriptions: modules/volume-scanner already grants their identity there, and Azure refuses a second identical `AcrPull` assignment. | <pre>object({<br/>    management_group_id = optional(string)<br/>    subscription_ids    = optional(list(string))<br/>  })</pre> | n/a | yes |
 | <a name="input_hub_principal_ids"></a> [hub\_principal\_ids](#input\_hub\_principal\_ids) | The principal IDs of the hubs' scanner identities, each hub's `managed_identity_principal_id` output of modules/volume-scanner, keyed by any name known at plan time, such as the hub's subscription ID. A hub is a volume scanner that also scans other subscriptions of the tenant, the ones chosen in Stream Security. List every hub of the scope in one instance. | `map(string)` | n/a | yes |
 | <a name="input_workload_kinds"></a> [workload\_kinds](#input\_workload\_kinds) | Comma-separated workloads the hubs scan besides VMs, as their modules/volume-scanner `workload_kinds`: AcrPull is granted when any is set, and the read of Flex Consumption function packages with azurefunctions. Set to an empty string to grant VM scanning only. | `string` | `"containerapps,azurefunctions,appservice,containerinstances"` | no |
 

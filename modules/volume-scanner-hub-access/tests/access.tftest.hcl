@@ -116,12 +116,85 @@ run "the_target_role_reads_and_snapshots_but_starts_no_jobs" {
   }
 
   assert {
+    condition = toset(azurerm_role_definition.target["aaaaaaaa-0000-0000-0000-000000000001"].permissions[0].actions) == toset([
+      "Microsoft.Resources/subscriptions/read",
+      "Microsoft.Compute/virtualMachines/read",
+      "Microsoft.Compute/virtualMachineScaleSets/read",
+      "Microsoft.Compute/virtualMachineScaleSets/virtualMachines/read",
+      "Microsoft.Compute/disks/read",
+      "Microsoft.Compute/disks/beginGetAccess/action",
+      "Microsoft.Compute/snapshots/read",
+      "Microsoft.Compute/snapshots/write",
+      "Microsoft.Compute/snapshots/delete",
+      "Microsoft.Compute/snapshots/beginGetAccess/action",
+      "Microsoft.Compute/snapshots/endGetAccess/action",
+      "Microsoft.ResourceGraph/resources/read",
+      "Microsoft.App/containerApps/read",
+      "Microsoft.App/containerApps/revisions/read",
+      "Microsoft.Web/sites/read",
+      "Microsoft.Web/sites/sitecontainers/Read",
+      "Microsoft.ContainerInstance/containerGroups/read",
+    ])
+    error_message = "The target role must grant exactly the scanner's reads and snapshot actions, as the console's access template does: nothing more."
+  }
+
+  assert {
     condition = alltrue([
       azurerm_role_definition.function_packages["aaaaaaaa-0000-0000-0000-000000000001"].permissions[0].data_actions == toset(["Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read"]),
       azurerm_role_assignment.function_packages["aaaaaaaa-0000-0000-0000-000000000001/hub_a"].condition_version == "2.0",
       strcontains(azurerm_role_assignment.function_packages["aaaaaaaa-0000-0000-0000-000000000001/hub_a"].condition, "StringEquals 'released-package.zip'"),
     ])
     error_message = "The function-package read must be limited to released-package.zip by its assignment's condition."
+  }
+}
+
+# Each scope's roles get their own id, so an assignment pointing at another scope's role fails.
+run "each_assignment_grants_its_own_scopes_role" {
+  command = apply
+
+  override_resource {
+    target = azurerm_role_definition.target["aaaaaaaa-0000-0000-0000-000000000001"]
+    values = { role_definition_resource_id = "/subscriptions/aaaaaaaa-0000-0000-0000-000000000001/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-0000000000d1" }
+  }
+  override_resource {
+    target = azurerm_role_definition.target["aaaaaaaa-0000-0000-0000-000000000002"]
+    values = { role_definition_resource_id = "/subscriptions/aaaaaaaa-0000-0000-0000-000000000002/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-0000000000d2" }
+  }
+  override_resource {
+    target = azurerm_role_definition.function_packages["aaaaaaaa-0000-0000-0000-000000000001"]
+    values = { role_definition_resource_id = "/subscriptions/aaaaaaaa-0000-0000-0000-000000000001/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-0000000000f1" }
+  }
+  override_resource {
+    target = azurerm_role_definition.function_packages["aaaaaaaa-0000-0000-0000-000000000002"]
+    values = { role_definition_resource_id = "/subscriptions/aaaaaaaa-0000-0000-0000-000000000002/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-0000000000f2" }
+  }
+
+  assert {
+    condition = alltrue([
+      azurerm_role_assignment.target["aaaaaaaa-0000-0000-0000-000000000001/hub_a"].role_definition_id == "/subscriptions/aaaaaaaa-0000-0000-0000-000000000001/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-0000000000d1",
+      azurerm_role_assignment.target["aaaaaaaa-0000-0000-0000-000000000002/hub_b"].role_definition_id == "/subscriptions/aaaaaaaa-0000-0000-0000-000000000002/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-0000000000d2",
+      azurerm_role_assignment.function_packages["aaaaaaaa-0000-0000-0000-000000000001/hub_b"].role_definition_id == "/subscriptions/aaaaaaaa-0000-0000-0000-000000000001/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-0000000000f1",
+      azurerm_role_assignment.function_packages["aaaaaaaa-0000-0000-0000-000000000002/hub_a"].role_definition_id == "/subscriptions/aaaaaaaa-0000-0000-0000-000000000002/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-0000000000f2",
+    ])
+    error_message = "Each assignment must grant the role defined on its own scope: the target role, and the function-package role."
+  }
+}
+
+run "a_subscription_listed_twice_gets_one_role" {
+  command = plan
+
+  variables {
+    grant_on = {
+      subscription_ids = [
+        "aaaaaaaa-0000-0000-0000-000000000001",
+        "AAAAAAAA-0000-0000-0000-000000000001",
+      ]
+    }
+  }
+
+  assert {
+    condition     = length(azurerm_role_definition.target) == 1 && length(azurerm_role_assignment.target) == 2
+    error_message = "The same subscription, in any case, must get one role and one assignment per hub."
   }
 }
 
@@ -204,6 +277,36 @@ run "a_management_group_resource_id_is_refused" {
   }
 
   expect_failures = [var.grant_on]
+}
+
+run "an_empty_management_group_id_is_refused" {
+  command = plan
+
+  variables {
+    grant_on = { management_group_id = "" }
+  }
+
+  expect_failures = [var.grant_on]
+}
+
+run "a_management_group_id_ending_in_a_period_is_refused" {
+  command = plan
+
+  variables {
+    grant_on = { management_group_id = "contoso-workloads." }
+  }
+
+  expect_failures = [var.grant_on]
+}
+
+run "no_hub_is_refused" {
+  command = plan
+
+  variables {
+    hub_principal_ids = {}
+  }
+
+  expect_failures = [var.hub_principal_ids]
 }
 
 run "a_principal_that_is_not_a_guid_is_refused" {

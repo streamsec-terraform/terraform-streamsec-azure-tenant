@@ -8,16 +8,16 @@ variable "hub_principal_ids" {
   nullable    = false
 
   validation {
-    condition = alltrue([
+    condition = length(var.hub_principal_ids) > 0 && alltrue([
       for id in values(var.hub_principal_ids) :
       can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", id))
     ])
-    error_message = "Each value of hub_principal_ids must be the principal ID (object ID) of a hub scanner's managed identity, a GUID."
+    error_message = "hub_principal_ids must list at least one hub, each value the principal ID (object ID) of a hub scanner's managed identity, a GUID."
   }
 }
 
 variable "grant_on" {
-  description = "Where the hubs get access, exactly one of: `{ management_group_id = \"...\" }` for every subscription under the management group, including ones added later; or `{ subscription_ids = [...] }` for those subscriptions only. IDs must be known at plan time."
+  description = "Where the hubs get access, exactly one of: `{ management_group_id = \"...\" }` for every subscription under the management group, including ones added later; or `{ subscription_ids = [...] }` for those subscriptions only. IDs must be known at plan time. Leave out the hubs' own subscriptions: modules/volume-scanner already grants their identity there, and Azure refuses a second identical `AcrPull` assignment."
   type = object({
     management_group_id = optional(string)
     subscription_ids    = optional(list(string))
@@ -30,7 +30,7 @@ variable "grant_on" {
   }
 
   validation {
-    condition     = var.grant_on.management_group_id == null || can(regex("^[A-Za-z0-9._()-]{1,90}$", coalesce(var.grant_on.management_group_id, "-")))
+    condition     = var.grant_on.management_group_id == null || can(regex("^[A-Za-z0-9._()-]{0,89}[A-Za-z0-9_()-]$", var.grant_on.management_group_id))
     error_message = "grant_on.management_group_id must be the management group's ID (its name), not its resource ID."
   }
 

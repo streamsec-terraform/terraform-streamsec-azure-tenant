@@ -45,11 +45,12 @@ module "hub_scanner" {
 # out subscription_ids then. Each subscription still needs the hub's access below.
 resource "streamsec_azure_scanner_hub" "this" {
   account_id       = data.streamsec_azure_tenant.this.id
-  subscription_id  = var.hub_subscription_id
+  subscription_id  = lower(var.hub_subscription_id)
   coverage         = "selected"
-  subscription_ids = [var.scanned_subscription_id]
+  subscription_ids = [lower(var.scanned_subscription_id)]
 
-  depends_on = [module.hub_scanner]
+  # the hub scans once its access is granted, and stops before it is revoked
+  depends_on = [module.hub_scanner, module.hub_access]
 }
 
 module "hub_access" {
