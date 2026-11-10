@@ -443,8 +443,29 @@ run "role_assignments_go_to_the_managed_identity" {
       azurerm_role_assignment.acr_pull[0].principal_id == "00000000-0000-0000-0000-000000000002",
       azurerm_role_assignment.function_packages[0].principal_id == "00000000-0000-0000-0000-000000000002",
       azurerm_role_assignment.function_packages[0].role_definition_id == azurerm_role_definition.function_packages[0].role_definition_resource_id,
+      azurerm_role_assignment.worker_start.principal_id == "00000000-0000-0000-0000-000000000002",
+      azurerm_role_assignment.worker_start.role_definition_id == azurerm_role_definition.worker_start.role_definition_resource_id,
     ])
     error_message = "Every role must be assigned to the scanner's managed identity."
+  }
+}
+
+run "the_orchestrator_may_override_only_the_worker_job" {
+  command = apply
+
+  assert {
+    condition = alltrue([
+      azurerm_role_definition.worker_start.permissions[0].actions == tolist(["Microsoft.App/jobs/write"]),
+      azurerm_role_definition.worker_start.assignable_scopes == tolist(["/subscriptions/00000000-0000-0000-0000-000000000000"]),
+      azurerm_role_assignment.worker_start.scope == azurerm_container_app_job.worker.id,
+      azurerm_role_assignment.worker_start.principal_type == "ServicePrincipal",
+    ])
+    error_message = "Starting the worker with a template override needs Microsoft.App/jobs/write, granted on the worker job only."
+  }
+
+  assert {
+    condition     = !contains(azurerm_role_definition.scanner.permissions[0].actions, "Microsoft.App/jobs/write")
+    error_message = "The subscription-wide role must not carry Microsoft.App/jobs/write."
   }
 }
 
