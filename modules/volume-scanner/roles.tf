@@ -42,6 +42,26 @@ resource "azurerm_role_assignment" "scanner" {
   principal_type     = "ServicePrincipal"
 }
 
+# the orchestrator overrides the worker's template on every start, which Azure allows only with jobs/write
+resource "azurerm_role_definition" "worker_start" {
+  name        = "Stream Security Volume Scanner worker start (${azurerm_resource_group.this.name}, ${substr(local.subscription_id, 0, 8)})"
+  scope       = local.subscription_scope
+  description = "Lets the Stream Security volume scanner start its worker job with a per-run template override. Assigned on the worker job only."
+
+  permissions {
+    actions = ["Microsoft.App/jobs/write"]
+  }
+
+  assignable_scopes = [local.subscription_scope]
+}
+
+resource "azurerm_role_assignment" "worker_start" {
+  scope              = azurerm_container_app_job.worker.id
+  role_definition_id = azurerm_role_definition.worker_start.role_definition_resource_id
+  principal_id       = azurerm_user_assigned_identity.this.principal_id
+  principal_type     = "ServicePrincipal"
+}
+
 resource "azurerm_role_assignment" "acr_pull" {
   count = local.scan_workloads ? 1 : 0
 

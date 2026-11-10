@@ -48,8 +48,10 @@ No modules.
 | [azurerm_role_assignment.acr_pull](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.function_packages](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_assignment.scanner](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
+| [azurerm_role_assignment.worker_start](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_role_definition.function_packages](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_definition) | resource |
 | [azurerm_role_definition.scanner](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_definition) | resource |
+| [azurerm_role_definition.worker_start](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_definition) | resource |
 | [azurerm_user_assigned_identity.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/user_assigned_identity) | resource |
 | [azurerm_virtual_network.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network) | resource |
 | [streamsec_azure_volume_scanner_ack.this](https://registry.terraform.io/providers/streamsec-terraform/streamsec/latest/docs/resources/azure_volume_scanner_ack) | resource |
@@ -90,7 +92,7 @@ No modules.
 |------|-------------|
 | <a name="output_log_analytics_workspace_id"></a> [log\_analytics\_workspace\_id](#output\_log\_analytics\_workspace\_id) | Log Analytics workspace receiving the scanner's container logs |
 | <a name="output_managed_identity_client_id"></a> [managed\_identity\_client\_id](#output\_managed\_identity\_client\_id) | Client id of the scanner's user-assigned managed identity |
-| <a name="output_managed_identity_principal_id"></a> [managed\_identity\_principal\_id](#output\_managed\_identity\_principal\_id) | Principal id of the scanner's user-assigned managed identity, which holds the subscription-scoped roles |
+| <a name="output_managed_identity_principal_id"></a> [managed\_identity\_principal\_id](#output\_managed\_identity\_principal\_id) | Principal id of the scanner's user-assigned managed identity, which holds the subscription-scoped roles and the worker job's start role |
 | <a name="output_nat_gateway_public_ip"></a> [nat\_gateway\_public\_ip](#output\_nat\_gateway\_public\_ip) | Static egress IP of the scanner's NAT gateway, for allowlisting. Null with network\_mode = "use\_existing", since egress is then through a network this module does not own. |
 | <a name="output_orchestrator_job_id"></a> [orchestrator\_job\_id](#output\_orchestrator\_job\_id) | Resource id of the orchestrator job, for starting a scan by hand |
 | <a name="output_orchestrator_job_name"></a> [orchestrator\_job\_name](#output\_orchestrator\_job\_name) | Name of the Container Apps job that runs on the schedule and starts the workers |

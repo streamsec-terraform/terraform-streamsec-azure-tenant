@@ -296,6 +296,7 @@ resource "streamsec_azure_volume_scanner_ack" "this" {
     azurerm_role_assignment.scanner,
     azurerm_role_assignment.acr_pull,
     azurerm_role_assignment.function_packages,
+    azurerm_role_assignment.worker_start,
   ]
 }
 

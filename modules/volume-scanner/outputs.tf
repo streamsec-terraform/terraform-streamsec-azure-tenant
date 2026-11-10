@@ -19,7 +19,7 @@ output "worker_job_name" {
 }
 
 output "managed_identity_principal_id" {
-  description = "Principal id of the scanner's user-assigned managed identity, which holds the subscription-scoped roles"
+  description = "Principal id of the scanner's user-assigned managed identity, which holds the subscription-scoped roles and the worker job's start role"
   value       = azurerm_user_assigned_identity.this.principal_id
 }
 
