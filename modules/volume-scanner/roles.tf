@@ -42,8 +42,7 @@ resource "azurerm_role_assignment" "scanner" {
   principal_type     = "ServicePrincipal"
 }
 
-# The orchestrator hands each worker run its shard by overriding the worker job's
-# template on start, and Azure allows that override only with Microsoft.App/jobs/write.
+# the orchestrator overrides the worker's template on every start, which Azure allows only with jobs/write
 resource "azurerm_role_definition" "worker_start" {
   name        = "Stream Security Volume Scanner worker start (${azurerm_resource_group.this.name}, ${substr(local.subscription_id, 0, 8)})"
   scope       = local.subscription_scope
