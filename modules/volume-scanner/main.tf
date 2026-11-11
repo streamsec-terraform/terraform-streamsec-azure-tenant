@@ -15,7 +15,7 @@ data "azurerm_resources" "scanner_jobs" {
 
 locals {
   # reported to Stream Security on install, bump with each release
-  module_version = "1.6.0"
+  module_version = "1.7.0"
 
   subscription_id    = lower(data.azurerm_subscription.current.subscription_id)
   subscription_scope = "/subscriptions/${local.subscription_id}"
@@ -289,6 +289,8 @@ resource "streamsec_azure_volume_scanner_ack" "this" {
   subscription_id = local.subscription_id
   module_version  = local.module_version
   resource_group  = azurerm_resource_group.this.name
+  # the identity a hub's access template grants in the subscriptions it scans
+  principal_id = azurerm_user_assigned_identity.this.principal_id
 
   depends_on = [
     azurerm_container_app_job.worker,

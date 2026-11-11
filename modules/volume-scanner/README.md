@@ -5,6 +5,7 @@
 - The identity running Terraform needs Owner, or Contributor and User Access Administrator, on the subscription.
 - The `Microsoft.App`, `Microsoft.OperationalInsights`, `Microsoft.Network` and `Microsoft.ManagedIdentity` resource providers must be registered in the subscription.
 - Don't deploy the module in a subscription that has the scanner from the console's ARM template: delete that deployment's resource group first.
+- To have this scanner also scan other subscriptions of the tenant, as a hub, grant its managed identity access there with [`modules/volume-scanner-hub-access`](../volume-scanner-hub-access), then choose them in Stream Security.
 - The collection token is stored in the Terraform state and in plan files.
 - `terraform destroy` removes the scanner and reports it uninstalled. Destroy the scanner before disconnecting the tenant, or run `terraform destroy -refresh=false`. Disk snapshots left behind by an interrupted scan are not managed by Terraform.
 
