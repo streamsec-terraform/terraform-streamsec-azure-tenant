@@ -84,7 +84,7 @@ run "default_plan_creates_the_whole_scanner" {
     condition = alltrue([
       streamsec_azure_volume_scanner_ack.this.account_id == "0123456789abcdef01234567",
       streamsec_azure_volume_scanner_ack.this.subscription_id == "00000000-0000-0000-0000-000000000000",
-      streamsec_azure_volume_scanner_ack.this.module_version == "1.7.0",
+      streamsec_azure_volume_scanner_ack.this.module_version == "1.8.0",
       streamsec_azure_volume_scanner_ack.this.resource_group == "streamsec-scanner-tf-00000000",
     ])
     error_message = "The acknowledgement must name the tenant, the subscription, the module version and the resource group."
@@ -481,13 +481,13 @@ run "the_orchestrator_may_override_only_the_worker_job" {
   assert {
     condition = alltrue([
       azurerm_role_definition.worker_start.name == "Stream Security Volume Scanner worker start (streamsec-scanner-tf-00000000, 00000000)",
-      azurerm_role_definition.worker_start.permissions[0].actions == tolist(["Microsoft.App/jobs/write"]),
+      azurerm_role_definition.worker_start.permissions[0].actions == tolist(["Microsoft.App/jobs/write", "Microsoft.App/jobs/stop/execution/action"]),
       azurerm_role_definition.worker_start.assignable_scopes == tolist(["/subscriptions/00000000-0000-0000-0000-000000000000"]),
       azurerm_role_assignment.worker_start.scope == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/streamsec-scanner-tf-00000000/providers/Microsoft.App/jobs/streamsec-scanner-worker",
       azurerm_role_assignment.worker_start.role_definition_id == "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-000000000004",
       azurerm_role_assignment.worker_start.principal_type == "ServicePrincipal",
     ])
-    error_message = "Starting the worker with a template override needs Microsoft.App/jobs/write, granted on the worker job only."
+    error_message = "Starting the worker with a template override needs Microsoft.App/jobs/write, and stopping one that never starts needs jobs/stop/execution/action, both granted on the worker job only."
   }
 }
 

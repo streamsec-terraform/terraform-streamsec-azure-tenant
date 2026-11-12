@@ -15,7 +15,7 @@ data "azurerm_resources" "scanner_jobs" {
 
 locals {
   # reported to Stream Security on install, bump with each release
-  module_version = "1.7.0"
+  module_version = "1.8.0"
 
   subscription_id    = lower(data.azurerm_subscription.current.subscription_id)
   subscription_scope = "/subscriptions/${local.subscription_id}"
