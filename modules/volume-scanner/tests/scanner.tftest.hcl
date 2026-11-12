@@ -475,19 +475,19 @@ run "role_assignments_go_to_the_managed_identity" {
   }
 }
 
-run "the_orchestrator_may_override_only_the_worker_job" {
+run "the_orchestrator_may_override_and_stop_only_the_worker_job" {
   command = apply
 
   assert {
     condition = alltrue([
       azurerm_role_definition.worker_start.name == "Stream Security Volume Scanner worker start (streamsec-scanner-tf-00000000, 00000000)",
-      azurerm_role_definition.worker_start.permissions[0].actions == tolist(["Microsoft.App/jobs/write", "Microsoft.App/jobs/stop/execution/action"]),
+      azurerm_role_definition.worker_start.permissions[0].actions == tolist(["Microsoft.App/jobs/write", "Microsoft.App/jobs/executions/*"]),
       azurerm_role_definition.worker_start.assignable_scopes == tolist(["/subscriptions/00000000-0000-0000-0000-000000000000"]),
       azurerm_role_assignment.worker_start.scope == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/streamsec-scanner-tf-00000000/providers/Microsoft.App/jobs/streamsec-scanner-worker",
       azurerm_role_assignment.worker_start.role_definition_id == "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-000000000004",
       azurerm_role_assignment.worker_start.principal_type == "ServicePrincipal",
     ])
-    error_message = "Starting the worker with a template override needs Microsoft.App/jobs/write, and stopping one that never starts needs jobs/stop/execution/action, both granted on the worker job only."
+    error_message = "Starting the worker with a template override needs Microsoft.App/jobs/write, and stopping one that never starts needs jobs/executions/*, both granted on the worker job only."
   }
 }
 

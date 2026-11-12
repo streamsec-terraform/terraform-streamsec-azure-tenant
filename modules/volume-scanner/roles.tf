@@ -52,7 +52,8 @@ resource "azurerm_role_definition" "worker_start" {
   permissions {
     actions = [
       "Microsoft.App/jobs/write",
-      "Microsoft.App/jobs/stop/execution/action",
+      # stopping one execution is checked as jobs/executions/stop/action, which Azure accepts only through a wildcard
+      "Microsoft.App/jobs/executions/*",
     ]
   }
 
