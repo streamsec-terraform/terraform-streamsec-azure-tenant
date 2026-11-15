@@ -64,7 +64,7 @@ variable "resource_group_name" {
 variable "scanner_image" {
   description = "The scanner container image. Pin a release tag to control upgrades."
   type        = string
-  default     = "public.ecr.aws/stream-security/volume-scanner:latest"
+  default     = "streamsecpublic.azurecr.io/volume-scanner:latest"
   nullable    = false
 
   validation {

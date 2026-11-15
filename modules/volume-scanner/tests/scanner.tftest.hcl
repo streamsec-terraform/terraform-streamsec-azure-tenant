@@ -180,7 +180,7 @@ run "jobs_match_the_arm_template" {
     condition = alltrue([
       azurerm_container_app_job.worker.template[0].container[0].name == "scanner",
       azurerm_container_app_job.orchestrator.template[0].container[0].name == "scanner",
-      azurerm_container_app_job.worker.template[0].container[0].image == "public.ecr.aws/stream-security/volume-scanner:latest",
+      azurerm_container_app_job.worker.template[0].container[0].image == "streamsecpublic.azurecr.io/volume-scanner:latest",
     ])
     error_message = "Both containers must be named scanner and run the scanner image."
   }

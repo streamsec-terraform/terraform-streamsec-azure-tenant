@@ -79,7 +79,7 @@ No modules.
 | <a name="input_scan_kubernetes_volumes"></a> [scan\_kubernetes\_volumes](#input\_scan\_kubernetes\_volumes) | Whether to scan disks created for Kubernetes persistent volume claims. Only used if `scan_data_volumes` is true. | `bool` | `false` | no |
 | <a name="input_scan_language_packages"></a> [scan\_language\_packages](#input\_scan\_language\_packages) | Whether to scan language packages (Python, Node, Ruby, Go, Rust, Java). | `bool` | `true` | no |
 | <a name="input_scan_secrets"></a> [scan\_secrets](#input\_scan\_secrets) | Whether to scan for secrets on disk. Increases scan duration. | `bool` | `false` | no |
-| <a name="input_scanner_image"></a> [scanner\_image](#input\_scanner\_image) | The scanner container image. Pin a release tag to control upgrades. | `string` | `"public.ecr.aws/stream-security/volume-scanner:latest"` | no |
+| <a name="input_scanner_image"></a> [scanner\_image](#input\_scanner\_image) | The scanner container image. Pin a release tag to control upgrades. | `string` | `"streamsecpublic.azurecr.io/volume-scanner:latest"` | no |
 | <a name="input_schedule_cron_expression"></a> [schedule\_cron\_expression](#input\_schedule\_cron\_expression) | The scan schedule, as a cron expression in UTC. | `string` | `"0 3 * * *"` | no |
 | <a name="input_shard_size"></a> [shard\_size](#input\_shard\_size) | The number of VMs each worker execution scans. | `number` | `100` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | The tags to apply to the scanner resources. | `map(string)` | `{}` | no |
